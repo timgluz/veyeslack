@@ -6,6 +6,12 @@
             [clojure.string :as string]
             [slack-cmds.api :as api]))
 
+(def not-authorized-response
+  {:response_type "ephemeral"
+   :text "You havent save connect your API key yet;"
+   :attachments [{:title "Tip: use `/veye connect YOURAPIKEY`"
+                  :text "This command will temporary save your VersionEye key"}]})
+
 (defn join-tokens
   [tkns]
   (apply str (interpose " " tkns)))
@@ -26,6 +32,16 @@
 
 ;;TODO: refactor into slack-cmds.dispatchers.command
 (defmulti cmd-dispatcher (fn [cmd-dt] (-> cmd-dt :text split-args first keyword)))
+
+(defmethod cmd-dispatcher :connect [cmd-dt]
+  (let [[_ the-api-key] (split-args (:text cmd-dt))]
+    (if (empty? the-api-key)
+      {:response_type "ephemeral"
+       :text "You forgot API key"}
+      (do
+        (api/set-user-key! (:team_id cmd-dt) (:user_id cmd-dt) the-api-key)
+        {:response_type "ephemeral"
+         :text "Your API key is now memorized for 12hours."}))))
 
 (defmethod cmd-dispatcher :search [cmd-dt]
   (let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))
@@ -54,11 +70,7 @@
                     on-error)
     response-p))
 
-(def not-authorized-response
-  {:response_type "ephemeral"
-   :text "You havent save connect your API key yet;"
-   :attachments [{:title "Tip: use `/veye connect YOURAPIKEY`"
-                  :text "This command will temporary save your VersionEye key"}]})
+
 
 (defmethod cmd-dispatcher :list [cmd-dt]
   (if-let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))]
@@ -105,18 +117,47 @@
        (fn [res] (md/success! response-p api-error-response)))
       response-p)
     ;;when user had no api-key attached
-    not-authorized-response
-    ))
+    not-authorized-response))
 
-(defmethod cmd-dispatcher :connect [cmd-dt]
-  (let [[_ the-api-key] (split-args (:text cmd-dt))]
-    (if (empty? the-api-key)
-      {:response_type "ephemeral"
-       :text "You forgot API key"}
-      (do
-        (api/set-user-key! (:team_id cmd-dt) (:user_id cmd-dt) the-api-key)
+(defn to-project-details
+  [project-dt]
+  (letfn [(to-dep [dep-dt]
+            {:title (str (:prod_key dep-dt))
+             :title_link (to-veye-url (:language dep-dt)
+                                      (to-safe-key (:prod_key dep-dt))
+                                      (:version dep-dt))
+             :color (if (true? (:outdated dep-dt))
+                      "danger"
+                      "good")
+             :fields [{:title "Locked version"
+                       :value (:version_requested dep-dt)
+                       :short true}
+                      {:title "Current version"
+                       :value (:version_current dep-dt)
+                       :short true}]})]
+    {:response_type "ephemeral"
+     :text (str "Project details for: " (:id project-dt))
+     :attachments (->> (:dependencies project-dt)
+                    (filter #(true? (:outdated %)))
+                    (map #(to-dep %))
+                    doall)}))
+
+(defmethod cmd-dispatcher :project [cmd-dt]
+  (if-let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))]
+    (let [[_ project-id] (split-args (:text cmd-dt))]
+      (if (empty? project-id)
         {:response_type "ephemeral"
-         :text "Your API key is now memorized for 12hours."}))))
+         :text "You missed to send a project-id.\n hint: /veye project PROJECT_ID"}
+        (let [response-p (md/deferred)]
+          (md/on-realized
+            (md/future (api/project-details api-key project-id))
+            (fn [res] (md/success! response-p (-> res :body to-project-details)))
+            (fn [res] (md/success! response-p
+                                   {:text "Failed to fetch a project details"
+                                    :color "danger"})))
+          response-p)))
+    ;;when user has no active session
+    not-authorized-response))
 
 ;;delicate this task to help-dispatcher
 (defmethod cmd-dispatcher :help [cmd-dt]
@@ -124,6 +165,7 @@
    :text "VersionEye commands:"
    :attachments [{:text "/veye search clojure - search a package"}
                  {:text "/veye list <ORGA_NAME> <TEAM_NAME> - list your projects"}
+                 {:text "/veye project <PROJECT_ID> - show outdated project dependencies"}
                  {:text "/veye connect - save your api-key"}
                  {:text "/veye help    - show commands"}]})
 
@@ -149,5 +191,4 @@
     (http/bad-request
       (sz/encode {:reason "not valid command"} :json)
       {:content-type "application/json"})))
-
 

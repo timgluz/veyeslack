@@ -1,4 +1,4 @@
-(defproject slack-cmds "0.1.1"
+(defproject slack-cmds "0.1.2"
   :description "Slack commands For VersionEye"
   :url "https://www.github.com/timgluz/slack-cmds"
   :license {:name "Eclipse Public License"

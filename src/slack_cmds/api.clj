@@ -40,6 +40,13 @@
                                     (when org {:orga_name org})
                                     (when team {:team_name org}))})))
 
+(defn project-details
+  [api-key project-id]
+  (http/get (to-api-uri "/v2/projects/" project-id)
+            {:accept :json
+             :as :json
+             :query-params {:api_key api-key}}))
+
 (comment
   (require '[slack-cmds.api :as api] :reload)
   (def api-key (api/get-user-key "" ""))
