@@ -11,7 +11,8 @@
     [[:prefix "commands"
       [:any (parse/body-params)]
       [:post commands/handler]]
-     [:all help/handler]]))
+     [:all help/handler] ;;TODO refactor it as info-handler + include release dt
+     ]))
 
 (defn -main [& args]
   (ct/run-server app {:port 3030

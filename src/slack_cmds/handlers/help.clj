@@ -11,6 +11,7 @@
  {:response_type "ephemeral"
    :text "VersionEye commands:"
    :attachments [{:text "/veye clojure - search a package"}
+                 {:text "/veye list    - list projects"}
                  {:text "/veye connect - save your api-key"}
                  {:text "/veye help    - show commands"}]})
 

@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [funcool/catacumba "0.17.0"]
                  [clj-http "3.1.0"]
+                 [timgluz/spyglass "1.2.0"]
                  ;; Infrastructure
                  [org.slf4j/slf4j-simple "1.7.21" :scope "provided"]
                  [com.stuartsierra/component "0.3.1"]

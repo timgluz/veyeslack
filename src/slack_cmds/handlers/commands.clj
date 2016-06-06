@@ -109,14 +109,21 @@
     ))
 
 (defmethod cmd-dispatcher :connect [cmd-dt]
-  {:response_type "ephemeral"
-   :text "Not implemented"})
+  (let [[_ the-api-key] (split-args (:text cmd-dt))]
+    (if (empty? the-api-key)
+      {:response_type "ephemeral"
+       :text "You forgot API key"}
+      (do
+        (api/set-user-key! (:team_id cmd-dt) (:user_id cmd-dt) the-api-key)
+        {:response_type "ephemeral"
+         :text "Your API key is now memorized for 12hours."}))))
 
 ;;delicate this task to help-dispatcher
 (defmethod cmd-dispatcher :help [cmd-dt]
   {:response_type "ephemeral"
    :text "VersionEye commands:"
-   :attachments [{:text "/veye clojure - search a package"}
+   :attachments [{:text "/veye search clojure - search a package"}
+                 {:text "/veye list <ORGA_NAME> <TEAM_NAME> - list your projects"}
                  {:text "/veye connect - save your api-key"}
                  {:text "/veye help    - show commands"}]})
 
