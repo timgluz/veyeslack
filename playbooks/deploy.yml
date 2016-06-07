@@ -1,0 +1,20 @@
+# deploys newest release to server
+# you should build before running this script
+
+- hosts: app
+  remote_user: root
+  vars:
+    - jarname: "veyeslack-0.1.2-standalone.jar"
+    - app:
+        name: veyeslack-app 
+        folder: /var/www/veyeslack
+  tasks:
+    - name: copy jar to server
+      copy: src="../target/{{ jarname }}" dest="{{ app.folder }}"
+  
+    - name: link jar to runtime file
+      file: src="{{ app.folder }}/{{ jarname }}" dest="{{ app.folder }}/{{ app.name }}.jar" owner='www-data' state=link 
+
+  handlers:
+    - name: restart app supervisor
+      supervisorctl: name= {{ app.name }} state=restarted

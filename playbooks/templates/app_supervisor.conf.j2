@@ -1,0 +1,10 @@
+[program: {{ app.name }}]
+command=/usr/bin/java -jar {{ app.name }}.jar
+directory={{ app.folder }}
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+redirect_stderr=true
+stdout_logfile={{ app.folder }}/logs/{{ app.name}}.log
+

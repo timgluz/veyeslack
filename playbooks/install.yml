@@ -1,0 +1,17 @@
+# installs required dependencies on the app server
+
+- hosts: app
+  remote_user: root
+  tasks:
+    - name: add Azul Zulu keys
+      apt_key: keyserver='hkp://keyserver.ubuntu.com:80' id=0x219BD9C9
+    - name: attach Azul Zulu packages
+      apt_repository: repo='deb http://repos.azulsystems.com/ubuntu stable main' state=present
+    - name: install Azul Zulu JVM8
+      apt: name='zulu-8' state=latest update_cache=yes
+    - name: install nginx
+      apt: name=nginx state=latest
+    - name: install memcached
+      apt: name=memcached state=latest
+    - name: install supervisor
+      apt: name=supervisor state=latest

@@ -1,0 +1,30 @@
+#sets up services required by app
+
+- hosts: app
+  remote_user: root
+  vars:
+    - app:
+        name: 'veyeslack-app'
+        folder: /var/www/veyeslack
+  tasks:
+    - name: create app folder
+      command: mkdir -p {{ app.folder }}
+      ignore_errors: true
+    - name: add folder for logs
+      file: path={{ app.folder }}/logs state=directory
+    - name: set owner of app folder to www-data
+      file: path={{ app.folder }} owner='www-data' recurse=true
+    - name: add supervisor config for app
+      template: src=templates/app_supervisor.conf.j2 dest=/etc/supervisor/conf.d/{{ app.name }}.conf
+      notify:
+        - restart supervisor
+    - name: add nginx configuration
+      template: src=templates/app_nginx.conf.j2 dest=/etc/nginx/sites-available/default
+      notify:
+        - restart nginx
+
+  handlers:
+    - name: restart supervisor
+      service: name=supervisor state=restarted
+    - name: restart nginx
+      service: name=nginx state=restarted 
