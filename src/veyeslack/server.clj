@@ -1,9 +1,9 @@
-(ns slack-cmds.server
+(ns veyeslack.server
   (:require [catacumba.core :as ct]
             [catacumba.handlers.parse :as parse]
             [clojure.string :as string]
-            [slack-cmds.handlers.commands :as commands]
-            [slack-cmds.handlers.help :as help])
+            [veyeslack.handlers.commands :as commands]
+            [veyeslack.handlers.help :as help])
   (:gen-class))
 
 (def app

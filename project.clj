@@ -1,6 +1,6 @@
-(defproject slack-cmds "0.1.2"
-  :description "Slack commands For VersionEye"
-  :url "https://www.github.com/timgluz/slack-cmds"
+(defproject veyeslack "0.1.2"
+  :description "Slack integration for VersionEye"
+  :url "https://www.github.com/timgluz/veyeslack"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
@@ -13,7 +13,7 @@
                  [prismatic/schema "1.0.5"]
                  [environ "1.0.3"]]
   
-  :main slack-cmds.server
+  :main veyeslack.server
   :repl-options {:init-ns user
                  :welcome (println "Type (dev) to start")}
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.8.0"]

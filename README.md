@@ -1,14 +1,28 @@
-# slack-cmds
+# VeyeSlack
 
-A Clojure library designed to ... well, that part is up to you.
+VersionEye commands for Slack.
 
 ## Usage
 
-FIXME
+[TODO: here will be Slack button]
+
+#### Developers
+
+* run server
+
+```
+lein run
+```
+
+* run tests
+
+```
+lein test
+```
 
 ## License
 
-Copyright © 2016 FIXME
+Copyright © 2016 VersionEye
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.

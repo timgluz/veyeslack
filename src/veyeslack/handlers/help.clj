@@ -1,4 +1,4 @@
-(ns slack-cmds.handlers.help
+(ns veyeslack.handlers.help
   (:require [catacumba
               [http :as http]
               [serializers :as sz]]

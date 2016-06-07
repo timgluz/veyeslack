@@ -1,10 +1,10 @@
-(ns slack-cmds.handlers.commands
+(ns veyeslack.handlers.commands
   (:require [catacumba
               [http :as http]
               [serializers :as sz]]
             [manifold.deferred :as md]
             [clojure.string :as string]
-            [slack-cmds.api :as api]))
+            [veyeslack.api :as api]))
 
 (def not-authorized-response
   {:response_type "ephemeral"
@@ -30,7 +30,7 @@
 (defn split-args [task-txt]
   (-> task-txt str (string/split #"\s+") vec))
 
-;;TODO: refactor into slack-cmds.dispatchers.command
+;;TODO: refactor into veyeslack.dispatchers.command
 (defmulti cmd-dispatcher (fn [cmd-dt] (-> cmd-dt :text split-args first keyword)))
 
 (defmethod cmd-dispatcher :connect [cmd-dt]

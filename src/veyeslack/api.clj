@@ -1,4 +1,4 @@
-(ns slack-cmds.api
+(ns veyeslack.api
   (:require [clj-http.client :as http]
             [clojurewerkz.spyglass.client :as spyglass]))
 
@@ -48,7 +48,7 @@
              :query-params {:api_key api-key}}))
 
 (comment
-  (require '[slack-cmds.api :as api] :reload)
+  (require '[veyeslack.api :as api] :reload)
   (def api-key (api/get-user-key "" ""))
   (api/search api-key "rails" {})
   (api/project-list api-key {})
