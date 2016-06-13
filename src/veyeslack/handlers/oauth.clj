@@ -18,31 +18,36 @@
 
 (defn request-handler
   [context]
-  (if-let [req-dt (:data context)]
-    (let [auth-rsp (fetch-authorization-token (:code req-dt))]
-      (println "#-- auth-resp: " auth-rsp)
+  (let [req-dt (merge {} (:query-params context)  (:data context))]
+    (if (empty? req-dt)
+      ;;complain about missing data
+      (bad-request
+        (sz/encode {:reason "No request arguments"} :json)
+        {:content-type "application/json"})
+      ;;process if request includes secret code
+      (let [auth-rsp (fetch-authorization-token (:code req-dt))
+            db (get-in context [:app :db])]
+        (println "#-- auth-resp: \n" auth-rsp)
 
-      (if (= 200 (:status auth-rsp))
-        ;save user authorization token
-        (let [save-res (-> auth-rsp :body tkn-mdl/auth-response->model tkn-mdl/add!)]
-          (println "#-- model save result" save-res)
-          (if (false? (empty? save-res))
-            (ok
-              (sz/encode {:success true} :json)
-              {:content-type "application/json"})
-            (internal-server-error
-              (sz/encode {:reason "Failed to save Slack secret."} :json)
-              {:content-type "application/json"})))
-        
-        (internal-server-error
-          (sz/encode {:reason "Failed to change secrets with Slack"} :json)
-          {:content-type "application/json"})
-        
-        )
+        (if (and
+              (= 200 (:status auth-rsp))
+              (true? (get-in auth-rsp [:body :ok])))
 
-      )
-    ;;complain about missing data
-    (bad-request
-      (sz/encode {:reason "misses request arguments"} :json)
-      {:content-type "application/json"})
-    ))
+          ;save user authorization token
+          (let [save-res (-> (:body auth-rsp)
+                             tkn-mdl/auth-response->model
+                             ((partial tkn-mdl/add! db)))]
+            (println "#-- model save result" save-res)
+            (if (false? (empty? save-res))
+              (ok
+                (sz/encode {:success true} :json)
+                {:content-type "application/json"})
+              (internal-server-error
+                (sz/encode {:reason "Failed to save Slack secret."} :json)
+                {:content-type "application/json"})))
+          
+          (internal-server-error
+            (sz/encode {:reason "Failed to change secrets with Slack"
+                        :data (:body auth-rsp)}
+                       :json)
+            {:content-type "application/json"}))))))

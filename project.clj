@@ -15,6 +15,6 @@
                  [prismatic/schema "1.0.5"]
                  [environ "1.0.3"]]
 
-  :main veyeslack.server
+  :main veyeslack.main
   :repl-options {:init-ns user
                  :welcome (println "Type (dev) to start")})

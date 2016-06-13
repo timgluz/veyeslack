@@ -25,4 +25,7 @@
 
 (s/defn add! [db :- s/Any
               token-dt :- NewAuthToken]
-  (jdbc/insert! db :auth_tokens token-dt))
+  (if (:spec db)
+    (jdbc/insert! (:spec db) :auth_tokens token-dt)
+    (throw (ex-info "DBClient has no :spec value"
+                    {:data db}))))
