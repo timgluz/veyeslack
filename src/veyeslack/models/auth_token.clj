@@ -13,19 +13,55 @@
    :bot_user_id (s/maybe s/Str)
    :bot_access_token (s/maybe s/Str)})
 
+(s/defschema AuthToken
+  (merge NewAuthToken
+         {(s/optional-key :id) s/Num}))
 
 (defn auth-response->model
   "transform Slack auth response into AuthToken "
   [auth-rsp]
-  (-> auth-rsp
-      (merge (get auth-rsp :incoming_webhook {})
-             (get auth-rsp :bot {}))
-      (assoc :incoming (contains? auth-rsp :incoming_webhook))
-      (dissoc :bot :incoming_webhook)))
+  (let [default-hook-dt {:url nil
+                         :channel nil
+                         :configuration_url nil}
+        default-bot-dt {:bot_user_id nil
+                        :bot_access_token nil}]
+    (-> auth-rsp
+        ;;flatten doc
+        (merge (get auth-rsp :incoming_webhook default-hook-dt)
+               (get auth-rsp :bot default-bot-dt))
+        ;;remove flattened keys of subdoc
+        (dissoc :bot :incoming_webhook))))
 
-(s/defn add! [db :- s/Any
-              token-dt :- NewAuthToken]
-  (if (:spec db)
-    (jdbc/insert! (:spec db) :auth_tokens token-dt)
-    (throw (ex-info "DBClient has no :spec value"
-                    {:data db}))))
+(s/defn get-one-by-team-id
+  [db-client :- s/Any
+   team-id :- s/Str]
+  (first
+    (jdbc/query 
+      (:spec db-client)
+      ["SELECT * FROM auth_tokens WHERE team_id = ?" team-id])))
+
+(s/defn add!
+  [db-client :- s/Any
+   token-dt :- NewAuthToken]
+  (if (:spec db-client)
+    (jdbc/insert! (:spec db-client) :auth_tokens token-dt)
+    (throw (ex-info "DBClient has no :spec field" {:data db-client}))))
+
+(s/defn update!
+  [db-client :- s/Any
+   token-id :- s/Num
+   token-dt :- AuthToken]
+  (if (:spec db-client)
+    (jdbc/update! (:spec db-client)
+                  "auth_tokens"
+                  token-dt
+                  ["id = ?" token-id])
+    (throw (ex-info "DBClient has no :spec field" {:data db-client}))))
+
+(s/defn upsert!
+  [db-client :- s/Any
+   token-dt :- AuthToken]
+  (if-let [team-tkn (get-one-by-team-id db-client (:team_id token-dt))]
+    (update! db-client (:id team-tkn) (merge team-tkn token-dt))
+    (add! db-client token-dt)))
+

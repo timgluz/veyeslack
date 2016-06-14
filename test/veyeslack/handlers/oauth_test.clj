@@ -1,11 +1,12 @@
 (ns veyeslack.handlers.oauth-test
   (require [clojure.test :refer :all]
            [clj-http.client :as http-client]
-           [clj-http.fake :refer [with-fake-routes]]
+           [clj-http.fake :refer [with-fake-routes with-global-fake-routes]]
            [cheshire.core :as json]
            [catacumba.testing :refer [with-server]]
            [veyeslack.test_helpers :refer [with-component-server clean-tables!]]
            [veyeslack.server :as server]
+           [veyeslack.models.auth-token :as tkn-mdl]
            [veyeslack.handlers.oauth :as oauth]))
 
 (def base-url "http://127.0.0.1:5050")
@@ -13,6 +14,17 @@
 (def slack-invalid-code-error
   {:ok false
    :error "invalid_code"})
+
+(def slack-success-response
+  {:access_token "oauth-test-case-123"
+   :scope "read,command"
+   :team_name "ClojureTest"
+   :team_id "id-123"
+   :incoming_webhook {:url "https://slack.com/id/code"
+                      :channel "#spooky"
+                      :configuration_url "https://x.y"}
+   :bot {:bot_user_id "bot-user-123"
+         :bot_access_token "bot-secret-123"}})
 
 (def the-db (-> (server/get-system-configs)
                 (server/create-system)
@@ -44,11 +56,11 @@
           (is (= 400 (:status res)))))))
   
   (testing "oauth returns 503, when it fails to swap code"
-    (with-fake-routes
-      {#".*" (fn [req]
-               {:status 503
-                :headers {"Content-Type" "application/json"}
-                :body (json/generate-string slack-invalid-code-error)})}
+    (with-global-fake-routes
+      {#"https://slack.*" (fn [req]
+                           {:status 503
+                            :headers {"Content-Type" "application/json"}
+                            :body (json/generate-string slack-invalid-code-error)})}
 
       (with-component-server {:system (server/start!)}
         (let [res (http-client/get
@@ -57,8 +69,29 @@
                        :query-params {:code "abc-123"}
                        :throw-exceptions? false})]
           (is (false? (nil? res)) "API response cant be nil")
-          (is (= 503 (:status res))))))))
+          (is (= 500 (:status res))))))))
 
-;;TODO: add table cleaners
 (deftest oauth-happy-flow
-  (testing "oauth returns"))
+  (testing "oauth returns proper token-data and saves results"
+    (with-global-fake-routes
+      {#"https://slack.*" (fn [req]
+                           {:status 200
+                            :headers {"Content-Type" "application/json"}
+                            :body (json/generate-string slack-success-response)})}
+      
+      (with-component-server {:system (server/start!)}
+        (let [res (http-client/get
+                    (str base-url "/oauth/request")
+                    {:as :json
+                     :query-params {:code "abc-123"}
+                     :throw-exceptions? false})]
+          (is (false? (nil? res)) "API response cant be nil")
+          (is (= 200 (:status res)))
+          (let [team-tkn (tkn-mdl/get-one-by-team-id
+                           the-db
+                           (:team_id slack-success-response))]
+            (is (false? (empty? team-tkn)) "It didnt save user api token")
+            (is (= (:team_id slack-success-response)
+                   (:team_id team-tkn)))
+            (is (= (:access_token slack-success-response)
+                   (:access_token team-tkn)))))))))
