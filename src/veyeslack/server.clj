@@ -51,18 +51,22 @@
       {:app {:server :catacumba
              :db :postgres}})))
 
+(defn get-system-configs
+  "collects system configs into unified hash-map"
+  []
+  {:server {:port (Long. (or (env :port) 3030))
+            :debug (= "dev" (env :environment))}
+   :db {:host (env :db-host)
+        :port (Long. (or (env :db-port) 5432))
+        :database (env :db-name)
+        :user (env :db-user)
+        :password (env :db-password)}
+   :slack {:client-id (env :slack-client-id)
+           :client-secret (env :slack-client-secret)
+           :redirect-url (env :slack-redirect-url)
+           :auth-url (env :slack-auth-url)}})
+
 (defn start! []
-  (let [the-system (create-system
-                     {:server {:port (Long. (or (env :port) 3030))
-                               :debug (= "dev" (env :environment))}
-                      :db {:host (env :db-host)
-                           :port (Long. (or (env :db-port) 5432))
-                           :database (env :db-name)
-                           :user (env :db-user)
-                           :password (env :db-password)}
-                      :slack {:client-id (env :slack-client-id)
-                              :client-secret (env :slack-client-secret)
-                              :redirect-url (env :slack-redirect-url)
-                              :auth-url (env :slack-auth-url)}})]
-  (component/start the-system)))
+  (let [the-system (create-system (get-system-configs))]
+    (component/start the-system)))
 

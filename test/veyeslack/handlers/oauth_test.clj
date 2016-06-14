@@ -4,7 +4,7 @@
            [clj-http.fake :refer [with-fake-routes]]
            [cheshire.core :as json]
            [catacumba.testing :refer [with-server]]
-           [veyeslack.test_helpers :refer [with-component-server]]
+           [veyeslack.test_helpers :refer [with-component-server clean-tables!]]
            [veyeslack.server :as server]
            [veyeslack.handlers.oauth :as oauth]))
 
@@ -13,6 +13,20 @@
 (def slack-invalid-code-error
   {:ok false
    :error "invalid_code"})
+
+(def the-db (-> (server/get-system-configs)
+                (server/create-system)
+                :postgres
+                .start))
+
+(defn make-cleaner-fixture
+  [db-spec table-names]
+  (fn [f]
+    (clean-tables! db-spec table-names)
+    (f)
+    (clean-tables! db-spec table-names)))
+
+(use-fixtures :each (make-cleaner-fixture (:spec the-db) ["auth_tokens"]))
 
 (deftest oauth-error-messages
   (testing "oauth returns 503, when it fails to swap code"
