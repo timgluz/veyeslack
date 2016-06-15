@@ -1,0 +1,1 @@
+ALTER TABLE auth_tokens ADD COLUMN user_id VARCHAR(255)

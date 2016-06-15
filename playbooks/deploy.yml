@@ -4,9 +4,9 @@
 - hosts: app
   remote_user: root
   vars:
-    - jarname: "veyeslack-0.1.6-standalone.jar"
+    - jarname: "veyeslack-0.1.7-standalone.jar"
     - app:
-        name: veyeslack-app 
+        name: 'veyeslack-app' 
         folder: /var/www/veyeslack
   tasks:
     - name: copy jar to server

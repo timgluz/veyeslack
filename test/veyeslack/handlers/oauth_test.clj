@@ -20,6 +20,8 @@
    :scope "read,command"
    :team_name "ClojureTest"
    :team_id "id-123"
+   :user_id "user-123"
+   :channel_id "ch-112"
    :incoming_webhook {:url "https://slack.com/id/code"
                       :channel "#spooky"
                       :configuration_url "https://x.y"}

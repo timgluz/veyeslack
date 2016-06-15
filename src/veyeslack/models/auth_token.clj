@@ -7,6 +7,7 @@
    :scope s/Str
    :team_name s/Str
    :team_id s/Str
+   :user_id s/Str
    :url (s/maybe s/Str)
    :channel (s/maybe s/Str)
    :channel_id (s/maybe s/Str)
@@ -31,13 +32,11 @@
         (merge (get auth-rsp :incoming_webhook default-hook-dt)
                (get auth-rsp :bot default-bot-dt))
         ;;remove flattened keys of subdoc
-        (dissoc :bot :incoming_webhook :ok))))
+        (select-keys (keys NewAuthToken)))))
 
 (s/defn get-one-by-team-id
   [db-client :- s/Any
    team-id :- s/Str]
-  (println "get-one-by-team-id: using database:" (:spec db-client))
-
   (first
     (jdbc/query 
       (:spec db-client)
