@@ -15,9 +15,9 @@
   (start [this]
     (assoc this :spec {:classname "org.postgresql.Driver"
                        :subprotocol "postgresql"
-                       :subname ""
-                       :host (:host configs)
-                       :database-name (:database configs)
+                       :subname (str "//"
+                                     (:host configs) "/"
+                                     (:database configs))
                        :user (:user configs)
                        :password (:password configs)}))
   (stop [this]

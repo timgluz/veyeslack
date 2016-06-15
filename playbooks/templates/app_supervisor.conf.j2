@@ -7,4 +7,4 @@ autorestart=true
 startretries=3
 redirect_stderr=true
 stdout_logfile={{ app.folder }}/logs/{{ app.name}}.log
-environment = {{ app_enviroment | mandatory | replace('\n', ',') }}
+environment={{ app_enviroment | mandatory | replace('\n', ',') }}APP_NAME="veyeslack-app"
