@@ -1,0 +1,12 @@
+---
+app_enviroment: |
+  ENVIRONMENT="production"
+  PORT=3030
+  DB_HOST="127.0.0.1"
+  DB_PORT=5432
+  DB_NAME="veyeslack_production"
+  DB_USER="veyeslack"
+  DB_PASSWORD="change me"
+  SLACK_CLIENT_ID="change me"
+  SLACK_CLIENT_SECRET="change me"
+  SLACK_REDIRECT_URL="change me"

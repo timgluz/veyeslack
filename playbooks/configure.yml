@@ -23,8 +23,15 @@
       notify:
         - restart nginx
 
+    - name: replace Postgres config
+      template: src=templates/pg_hba.conf.j2 dest=/etc/postgresql/9.5/main/pg_hba.conf
+      notify:
+        - restart postgres
+ 
   handlers:
     - name: restart supervisor
       service: name=supervisor state=restarted
     - name: restart nginx
-      service: name=nginx state=restarted 
+      service: name=nginx state=restarted
+    - name: restart postgres
+      service: name=postgresql state=reloaded

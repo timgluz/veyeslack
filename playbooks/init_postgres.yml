@@ -1,0 +1,23 @@
+- hosts: postgres
+  remote_user: root
+  become_user: postgres
+  vars:
+    - db:
+        name: veyeslack_production
+        user: 'veyeslack'
+        password: md5a17cf1fa69c47a95ac4a367c46794f31
+        password_admin: md549a000e143aa846c69f81baf6575a58d
+  tasks:
+    - name: change Postgres admin password
+      postgresql_user: >
+        name=postgres
+        encrypted=true
+        password={{ db.password_admin }}
+        login_user=postgres
+
+    - name: add database for the App
+      postgresql_db: name={{ db.name }} encoding='UTF-8' template='template0'
+
+    - name: add database user for the app
+      postgresql_user: name={{ db.user }} db={{ db.name }} encrypted=true password={{ db.password }}
+ 

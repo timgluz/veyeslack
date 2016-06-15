@@ -4,8 +4,6 @@ VersionEye commands for Slack.
 
 ## Usage
 
-<a href="https://slack.com/oauth/authorize?scope=incoming-webhook,commands&client_id=43911260647.48800449890"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
-
 
 [![Slack Button](https://platform.slack-edge.com/img/add_to_slack.png)](https://slack.com/oauth/authorize?scope=incoming-webhook,commands&client_id=43911260647.48800449890)
 
@@ -30,7 +28,14 @@ lein test
 ```
 $> cd playbooks
 $> ansible-playbook install.yml -i hosts --user=root
-$> ansible-playbook configure.yml -i hosts --user=root
+
+# update settings & restart services
+$> ansible-playbook configure.yml -i hosts -e @vars/production.yml
+
+# initialize database
+$> ansible-playbook init_postgres.yml -i hosts --become-user=postgres
+
+# run DB migrations from dev machine to instance
 
 ```
 
