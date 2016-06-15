@@ -68,6 +68,5 @@
 
 (defn start! []
   (let [the-system (create-system (get-system-configs))]
-    (println "Using database:" (:db (get-system-configs)))
     (component/start the-system)))
 

@@ -30,11 +30,13 @@
         (merge (get auth-rsp :incoming_webhook default-hook-dt)
                (get auth-rsp :bot default-bot-dt))
         ;;remove flattened keys of subdoc
-        (dissoc :bot :incoming_webhook))))
+        (dissoc :bot :incoming_webhook :ok))))
 
 (s/defn get-one-by-team-id
   [db-client :- s/Any
    team-id :- s/Str]
+  (println "get-one-by-team-id: using database:" (:spec db-client))
+
   (first
     (jdbc/query 
       (:spec db-client)
