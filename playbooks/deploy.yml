@@ -4,7 +4,7 @@
 - hosts: app
   remote_user: root
   vars:
-    - jarname: "veyeslack-0.1.5-standalone.jar"
+    - jarname: "veyeslack-0.1.6-standalone.jar"
     - app:
         name: veyeslack-app 
         folder: /var/www/veyeslack
@@ -13,7 +13,12 @@
       copy: src="../target/{{ jarname }}" dest="{{ app.folder }}"
   
     - name: link jar to runtime file
-      file: src="{{ app.folder }}/{{ jarname }}" dest="{{ app.folder }}/{{ app.name }}.jar" owner='www-data' state=link 
+      file: >
+        src="{{ app.folder }}/{{ jarname }}"
+        dest="{{ app.folder }}/{{ app.name }}.jar"
+        owner='www-data'
+        state=link 
+      notify: restart app supervisor
 
   handlers:
     - name: restart app supervisor
