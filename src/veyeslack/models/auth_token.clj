@@ -9,6 +9,7 @@
    :team_id s/Str
    :url (s/maybe s/Str)
    :channel (s/maybe s/Str)
+   :channel_id (s/maybe s/Str)
    :configuration_url (s/maybe s/Str)
    :bot_user_id (s/maybe s/Str)
    :bot_access_token (s/maybe s/Str)})
