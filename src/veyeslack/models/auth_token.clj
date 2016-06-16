@@ -19,6 +19,9 @@
   (merge NewAuthToken
          {(s/optional-key :id) s/Num}))
 
+(defn validate [dt the-schema]
+  (s/validate the-schema dt))
+
 (defn auth-response->model
   "transform Slack auth response into AuthToken "
   [auth-rsp]
@@ -32,7 +35,15 @@
         (merge (get auth-rsp :incoming_webhook default-hook-dt)
                (get auth-rsp :bot default-bot-dt))
         ;;remove flattened keys of subdoc
-        (select-keys (keys NewAuthToken)))))
+        (select-keys (keys NewAuthToken))
+        (validate AuthToken))))
+
+(s/defn get-one
+  [db-client :- s/Any
+   token-id :- s/Num]
+  (-> (:spec db-client)
+      (jdbc/query ["SELECT * FROM auth_tokens WHERE id = ?" token-id])
+      first))
 
 (s/defn get-one-by-team-id
   [db-client :- s/Any
@@ -46,7 +57,8 @@
   [db-client :- s/Any
    token-dt :- NewAuthToken]
   (if (:spec db-client)
-    (jdbc/insert! (:spec db-client) :auth_tokens token-dt)
+    (first
+      (jdbc/insert! (:spec db-client) :auth_tokens token-dt))
     (throw (ex-info "DBClient has no :spec field" {:data db-client}))))
 
 (s/defn update!
@@ -54,16 +66,17 @@
    token-id :- s/Num
    token-dt :- AuthToken]
   (if (:spec db-client)
-    (jdbc/update! (:spec db-client)
-                  "auth_tokens"
-                  token-dt
-                  ["id = ?" token-id])
+    (-> (:spec db-client)
+      (jdbc/update! "auth_tokens" token-dt ["id = ?" token-id])
+      (first))
     (throw (ex-info "DBClient has no :spec field" {:data db-client}))))
 
 (s/defn upsert!
+  "adds or updates existing auth_token; and returns changed model"
   [db-client :- s/Any
    token-dt :- AuthToken]
   (if-let [team-tkn (get-one-by-team-id db-client (:team_id token-dt))]
     (update! db-client (:id team-tkn) (merge team-tkn token-dt))
-    (add! db-client token-dt)))
+    (add! db-client token-dt))
+  (get-one-by-team-id db-client (:team_id token-dt)))
 

@@ -1,13 +1,14 @@
 (ns veyeslack.handlers.oauth-test
-  (require [clojure.test :refer :all]
-           [clj-http.client :as http-client]
-           [clj-http.fake :refer [with-fake-routes with-global-fake-routes]]
-           [cheshire.core :as json]
-           [catacumba.testing :refer [with-server]]
-           [veyeslack.test_helpers :refer [with-component-server clean-tables!]]
-           [veyeslack.server :as server]
-           [veyeslack.models.auth-token :as tkn-mdl]
-           [veyeslack.handlers.oauth :as oauth]))
+  (:require [clojure.test :refer :all]
+            [clj-http.client :as http-client]
+            [clj-http.fake :refer [with-fake-routes with-global-fake-routes]]
+            [cheshire.core :as json]
+            [catacumba.testing :refer [with-server]]
+            [veyeslack.test_helpers :refer [with-component-server]]
+            [veyeslack.fixtures :as fx]
+            [veyeslack.server :as server]
+            [veyeslack.models.auth-token :as tkn-mdl]
+            [veyeslack.handlers.oauth :as oauth]))
 
 (def base-url "http://127.0.0.1:5050")
 (def slack-oauth-url "https://slack.com/api/oauth.access")
@@ -33,14 +34,7 @@
                 :postgres
                 .start))
 
-(defn make-cleaner-fixture
-  [db-spec table-names]
-  (fn [f]
-    (clean-tables! db-spec table-names)
-    (f)
-    (clean-tables! db-spec table-names)))
-
-(use-fixtures :each (make-cleaner-fixture (:spec the-db) ["auth_tokens"]))
+(use-fixtures :each (fx/make-table-truncate-fixture (:spec the-db) ["auth_tokens"]))
 
 (deftest oauth-error-messages
   (testing "oauth returns 503, when it fails to swap code"

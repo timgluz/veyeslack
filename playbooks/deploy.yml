@@ -22,4 +22,4 @@
 
   handlers:
     - name: restart app supervisor
-      supervisorctl: name= {{ app.name }} state=restarted
+      supervisorctl: name={{ app.name }} state=restarted
