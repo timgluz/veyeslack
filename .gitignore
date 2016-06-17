@@ -12,3 +12,4 @@ pom.xml.asc
 profiles.clj
 /pgdata
 /playbooks/vars/*.yml
+/playbooks/*.retry

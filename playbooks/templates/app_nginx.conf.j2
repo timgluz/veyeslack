@@ -34,6 +34,15 @@ server {
 		# include /etc/nginx/naxsi.rules
 	#}
 
+
+
+  #serve static files directly
+  location /static {
+    root {{ app.folder }}/resources;
+    try_files $uri $uri/ $uri.html =404;
+  }
+
+  # pass through to APP
   location / {
     proxy_pass http://http_backend;
 

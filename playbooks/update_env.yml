@@ -1,0 +1,16 @@
+# updates environment variables for app
+- hosts: app
+  remote_user: root
+  vars:
+    - app:
+        name: 'veyeslack-app'
+        folder: /var/www/veyeslack
+  tasks:
+    - name: add supervisor config for app
+      template: src=templates/app_supervisor.conf.j2 dest=/etc/supervisor/conf.d/{{ app.name }}.conf
+      notify:
+        - restart supervisor
+  handlers:
+    - name: restart supervisor
+      service: name=supervisor state=restarted
+

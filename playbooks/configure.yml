@@ -1,5 +1,4 @@
 #sets up services required by app
-
 - hosts: app
   remote_user: root
   vars:

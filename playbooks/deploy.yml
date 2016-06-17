@@ -19,6 +19,8 @@
         owner='www-data'
         state=link 
       notify: restart app supervisor
+    - name: sync static files
+      synchronize: src=../resources dest={{ app.folder }}
 
   handlers:
     - name: restart app supervisor

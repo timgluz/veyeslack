@@ -49,6 +49,12 @@ $> lein uberjar
 
 * update version in `playbooks/deploy.yml`
 
+* update environment variables for the APP
+
+```
+$> ansible-playbook update_env.yml -i hosts -e @vars/production.yml
+```
+
 * run deployment script
 
 ```
