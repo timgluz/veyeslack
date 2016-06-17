@@ -4,7 +4,9 @@
               [serializers :as sz]]
             [manifold.deferred :as md]
             [clojure.string :as string]
-            [veyeslack.api :as api]))
+            [veyeslack.api :as api]
+            [veyeslack.commands.packages :as packages-cmd]
+            [veyeslack.formatters.packages :as packages-fmt]))
 
 (def not-authorized-response
   {:response_type "ephemeral"
@@ -45,32 +47,12 @@
 
 (defmethod cmd-dispatcher :search [cmd-dt]
   (let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))
-        query-term (-> cmd-dt :text split-args rest join-tokens)
-        response-p (md/deferred)
-        to-item-list (fn [items]
-                       (for [item items]
-                         {:title (str (:name item) ", " (:version item))
-                          :title_link (to-veye-url (:language item)
-                                                   (to-safe-key (:prod_key item))
-                                                   (:version item))
-                          :text (str (:language item) ", " (:prod_key item))}))
-        on-success (fn [res]
-                    (md/success! response-p
-                      {:response_type "ephemeral"
-                       :text (str "Search results for `" query-term "`")
-                       :attachments (-> res :body :results (#(take 10 %)) to-item-list)}))
-        on-error (fn [err]
-                   (md/success! response-p
-                     {:response_type "ephemeral"
-                      :text (str "Failed to execute search query for " query-term)
-                      :attachments [{:title "Response from VersionEye"
-                                     :text (str err)}]}))]
-    (md/on-realized (md/future (api/search api-key query-term {:n 10}))
-                    on-success
-                    on-error)
-    response-p))
-
-
+        query-term (-> cmd-dt :text split-args rest join-tokens)]
+    (packages-cmd/search api-key
+                         query-term
+                         {:n 10}
+                         #(packages-fmt/->search-success % false query-term)
+                         #(packages-fmt/->search-failure % false query-term))))
 
 (defmethod cmd-dispatcher :list [cmd-dt]
   (if-let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))]
