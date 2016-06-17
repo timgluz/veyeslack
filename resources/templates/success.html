@@ -1,0 +1,82 @@
+{% extends "templates/lp.html" %}
+
+{% block content %}
+
+  <section class="hero is-success is-medium is-bold">
+    {% include "templates/partials/hero_head.html" %}
+    {% include "templates/partials/hero_title.html" with title="Success!", subtitle="VersionEye is connected with your team's Slack." %}
+    {% include "templates/partials/hero_footer.html" with links=links %}
+  </section>
+
+  <section class="section">
+    {% include "templates/partials/rationale.html" %}
+  </section>
+
+  <section class="section">
+    <div id="what-next" class="container">
+      <div class="heading">
+        <h1 class="title">What next?</h1>
+        <h2 class="subtitle">
+          Just open your team's Slack and type </em>/veye</em> command.
+        </h2>
+      </div>
+
+      <div>
+        <p>
+          VersionEye is now integrated with your team account.
+          You can now use the "veye" command to search software packages,
+          check statuses of your projects and re-check projects;
+        </p>
+
+        <p>
+          Additionally, the-veye command, you'll get regular notifications to the Slack
+          channel; It wouldn't happen more than update frequency set on your project settings
+          on the VersionEye.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div id="quick-start" class="container">
+      <div class="heading">
+          <h1 class="title">Quick start</h1>
+          <h2 class="subtitle">
+            A command walk-through.
+          </h2>
+        </div>
+
+        <table class="table is-narrow">
+          <tr>
+            <td>/veye search clojure</td>
+            <td>finds software packages names as `clojure` </td>
+          </tr>
+
+          <tr>
+            <td>/veye connect YOUR-API-KEY</td>
+            <td>
+              saves VersionEye API key, so you could access details of dependencies
+              and licenses on the VersionEye. <br />
+              You can find your API key on your VersionEye settings page;
+            </td>
+          </tr>
+
+          <tr>
+            <td>/veye list</td>
+            <td> returns a list of your VersionEye projects. </td>
+          </tr>
+
+          <tr>
+            <td>/veye info PROJECT_UUID</td>
+            <td> returns a list of outdated dependencies in your project. </td>
+          </tr>
+
+          <tr>
+            <td>/veye help</td>
+            <td> returns a list of action. </td>
+          </tr>
+        </table>
+    </div>
+  </section>
+
+{% endblock %}

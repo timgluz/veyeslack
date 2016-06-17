@@ -1,0 +1,12 @@
+<!-- Hero footer: will stick at the bottom -->
+<div class="hero-foot">
+  <nav class="tabs">
+    <div class="container">
+      <ul>
+        {% for title,url in links %}
+          <li><a href="{{ url }}"> {{ title }} </a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </nav>
+</div>

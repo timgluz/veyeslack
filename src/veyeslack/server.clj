@@ -9,19 +9,22 @@
             [veyeslack.db :as db]
             [veyeslack.handlers.commands :as commands]
             [veyeslack.handlers.help :as help]
-            [veyeslack.handlers.oauth :as oauth]))
+            [veyeslack.handlers.oauth :as oauth]
+            [veyeslack.handlers.pages :as pages]))
 
 (defn make-app-routes
   [app-system]
-  [[:any (extra-data {:app app-system})]
-    [:prefix "commands"
+  [[:assets "static" {:dir "resources/static"}]
+   [:any (extra-data {:app app-system})]
+   [:prefix "commands"
       [:any (parse/body-params)]
       [:post commands/handler]]
-     [:prefix "oauth"
+   [:prefix "oauth"
       [:any (parse/body-params)]
-      [:get "request" oauth/request-handler]]
-     [:all help/handler] ;;TODO refactor it as info-handler + include release dt
-     ])
+      [:get "request" oauth/request-handler]
+      [:get "success" oauth/success-handler]
+      [:get "failure" oauth/failure-handler]]
+   [:all pages/index-handler]])
 
 (defrecord WebApp [server db]
   component/Lifecycle
@@ -54,8 +57,9 @@
 (defn get-system-configs
   "collects system configs into unified hash-map"
   []
-  {:server {:port (Long. (or (env :port) 3030))
-            :debug (= "dev" (env :environment))}
+  {:server {:port (Long. (or (env :app-port) 3030))
+            :debug (= "dev" (env :app-env))
+            :basedir (or (env :app-basedir) ".")}
    :db {:host (env :db-host)
         :port (Long. (or (env :db-port) 5432))
         :database (env :db-name)

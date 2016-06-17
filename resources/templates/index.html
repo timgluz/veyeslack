@@ -1,0 +1,20 @@
+{% extends "templates/lp.html" %}
+
+{% block content %}
+
+  <section class="hero is-info is-medium is-bold">
+    {% include "templates/partials/hero_head.html" %}
+    {% include "templates/partials/hero_title.html" with title="" %}
+    {% include "templates/partials/hero_footer.html" with links=links %}
+  </section>
+
+  <section class="section">
+    {% include "templates/partials/rationale.html" %}
+  </section>
+
+
+  <section class="section">
+    {% include "templates/partials/install_guide.html" %}
+  </section>
+
+{% endblock %}

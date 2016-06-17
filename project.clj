@@ -9,6 +9,7 @@
                  [timgluz/spyglass "1.2.0"]
                  [org.postgresql/postgresql "9.4.1208"]
                  [org.clojure/java.jdbc "0.6.1"]
+                 [selmer "1.0.4"]
                  ;; Infrastructure
                  [org.slf4j/slf4j-simple "1.7.21" :scope "provided"]
                  [com.stuartsierra/component "0.3.1"]

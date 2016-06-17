@@ -1,0 +1,24 @@
+{% extends "templates/lp.html" %}
+
+{% block content %}
+
+  <section class="hero is-danger is-medium is-bold">
+    {% include "templates/partials/hero_head.html" %}
+    {% include "templates/partials/hero_title.html" with title="Sorry!", subtitle="Integration failed" %}
+    {% include "templates/partials/hero_footer.html" with links=links %}
+  </section>
+
+  <section class="section">
+    <div id="message" class="container">
+      <div class="heading">
+        <h1 class="title">Error</h1>
+        <h2 class="subtitle">
+          We just received the error message and we are going to fix is ASAP.
+        </h2>
+      </div>
+    </div>
+  </section>
+
+
+
+{% endblock %}
