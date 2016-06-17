@@ -1,4 +1,4 @@
-(defproject veyeslack "0.1.7"
+(defproject veyeslack "0.2.0"
   :description "Slack integration for VersionEye"
   :url "https://www.github.com/timgluz/veyeslack"
   :license {:name "Eclipse Public License"

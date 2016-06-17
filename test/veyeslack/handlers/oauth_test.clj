@@ -49,7 +49,7 @@
                     (str base-url)
                     {:as :json :throw-exceptions? false})]
           (is (false? (nil? res)) "API response cant be nil")
-          (is (= 400 (:status res)))))))
+          (is (= 301 (:status res)))))))
   
   (testing "oauth returns 503, when it fails to swap code"
     (with-global-fake-routes
@@ -65,7 +65,7 @@
                        :query-params {:code "abc-123"}
                        :throw-exceptions? false})]
           (is (false? (nil? res)) "API response cant be nil")
-          (is (= 500 (:status res))))))))
+          (is (= 301 (:status res))))))))
 
 (deftest oauth-happy-flow
   (testing "oauth returns proper token-data and saves results"
@@ -82,7 +82,7 @@
                      :query-params {:code "abc-123"}
                      :throw-exceptions? false})]
           (is (false? (nil? res)) "API response cant be nil")
-          (is (= 200 (:status res)))
+          (is (= 301 (:status res)))
           (let [team-tkn (tkn-mdl/get-one-by-team-id
                            the-db
                            (:team_id slack-success-response))]
