@@ -8,7 +8,9 @@
             [veyeslack.commands.packages :as packages-cmd]
             [veyeslack.formatters.packages :as packages-fmt]
             [veyeslack.commands.projects :as projects-cmd]
-            [veyeslack.formatters.projects :as projects-fmt]))
+            [veyeslack.formatters.projects :as projects-fmt]
+            [veyeslack.commands.help :as help-cmd]
+            [veyeslack.formatters.help :as help-fmt]))
 
 (def not-authorized-response
   {:response_type "ephemeral"
@@ -19,17 +21,6 @@
 (defn join-tokens
   [tkns]
   (apply str (interpose " " tkns)))
-
-(defn to-safe-key [prod-key]
-  (-> prod-key (string/replace #"\/" ":")))
-
-(def veye-url  "https://www.versioneye.com")
-
-(defn to-veye-url [& path-items]
-  (->> path-items
-    (cons veye-url)
-    (interpose "/")
-    (apply str)))
 
 (defn split-args [task-txt]
   (-> task-txt str (string/split #"\s+") vec))
@@ -61,13 +52,12 @@
     (let [[_ org-name team-name _] (split-args (:text str))
           qparams {:org org-name :team team-name}]
       (projects-cmd/list-n api-key
-                           qparams               
+                           qparams 
                            #(projects-fmt/->list-success % qparams)
                            #(projects-fmt/->list-error % qparams)))
     ;;when user had no api-key
     not-authorized-response))
 
-;;TODO: refactor api-key checker into middle-ware of command handler
 (defmethod cmd-dispatcher :project [cmd-dt]
   (if-let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))]
     (let [[_ project-id] (split-args (:text cmd-dt))]
@@ -83,13 +73,11 @@
 
 ;;delicate this task to help-dispatcher
 (defmethod cmd-dispatcher :help [cmd-dt]
-  {:response_type "ephemeral"
-   :text "VersionEye commands:"
-   :attachments [{:text "/veye search clojure - search a package"}
-                 {:text "/veye list <ORGA_NAME> <TEAM_NAME> - list your projects"}
-                 {:text "/veye project <PROJECT_ID> - show outdated project dependencies"}
-                 {:text "/veye connect - save your api-key"}
-                 {:text "/veye help    - show commands"}]})
+  (let [[_ the-command] (split-args (:text cmd-dt))
+        commands (help-cmd/get-details the-command)]
+    (if (empty? the-command)
+      (help-fmt/->full-help commands)
+      (help-fmt/->command-help commands the-command))))
 
 ;;TODO: add did-you-mean if edit distance <= 2
 (defmethod cmd-dispatcher :default [cmd-dt]
