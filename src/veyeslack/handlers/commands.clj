@@ -67,43 +67,17 @@
     ;;when user had no api-key
     not-authorized-response))
 
-(defn to-project-details
-  [project-dt]
-  (letfn [(to-dep [dep-dt]
-            {:title (str (:prod_key dep-dt))
-             :title_link (to-veye-url (:language dep-dt)
-                                      (to-safe-key (:prod_key dep-dt))
-                                      (:version dep-dt))
-             :color (if (true? (:outdated dep-dt))
-                      "danger"
-                      "good")
-             :fields [{:title "Locked version"
-                       :value (:version_requested dep-dt)
-                       :short true}
-                      {:title "Current version"
-                       :value (:version_current dep-dt)
-                       :short true}]})]
-    {:response_type "ephemeral"
-     :text (str "Project details for: " (:id project-dt))
-     :attachments (->> (:dependencies project-dt)
-                    (filter #(true? (:outdated %)))
-                    (map #(to-dep %))
-                    doall)}))
-
+;;TODO: refactor api-key checker into middle-ware of command handler
 (defmethod cmd-dispatcher :project [cmd-dt]
   (if-let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))]
     (let [[_ project-id] (split-args (:text cmd-dt))]
       (if (empty? project-id)
         {:response_type "ephemeral"
-         :text "You missed to send a project-id.\n hint: /veye project PROJECT_ID"}
-        (let [response-p (md/deferred)]
-          (md/on-realized
-            (md/future (api/project-details api-key project-id))
-            (fn [res] (md/success! response-p (-> res :body to-project-details)))
-            (fn [res] (md/success! response-p
-                                   {:text "Failed to fetch a project details"
-                                    :color "danger"})))
-          response-p)))
+         :text "You forgot to send a project-id.\n hint: /veye project PROJECT_ID"}
+        (projects-cmd/project api-key
+                              project-id
+                              #(projects-fmt/->project-success % {:id project-id})
+                              #(projects-fmt/->project-error % {:id project-id}))))
     ;;when user has no active session
     not-authorized-response))
 
@@ -117,6 +91,7 @@
                  {:text "/veye connect - save your api-key"}
                  {:text "/veye help    - show commands"}]})
 
+;;TODO: add did-you-mean if edit distance <= 2
 (defmethod cmd-dispatcher :default [cmd-dt]
   {:response_type "ephemeral"
    :text (str "unsupported cmd `" (:text cmd-dt) "` - more info `/veye help`")})
