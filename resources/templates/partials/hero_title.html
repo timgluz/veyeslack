@@ -1,11 +1,13 @@
 <!-- Hero content: will be in the middle -->
 <div class="hero-body">
   <div class="container has-text-centered">
-    <div>
-      <img src="/static/img/veye.png"
-           class="image is-center"
-           style="max-width: 254px; max-height: 254px; display:inline;"/>
-    </div>
+    {% if not hide_hero_image %}
+      <div>
+        <img src="/static/img/veye.png"
+             class="image is-center"
+             style="max-width: 254px; max-height: 254px; display:inline;"/>
+      </div>
+    {% endif %}
 
     <h1 class="title">
       {{ title }}

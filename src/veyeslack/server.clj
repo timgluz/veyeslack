@@ -24,6 +24,9 @@
       [:get "request" oauth/request-handler]
       [:get "success" oauth/success-handler]
       [:get "failure" oauth/failure-handler]]
+   [:prefix "pages"
+    [:get "index" pages/index-handler]
+    [:get "commands" pages/command-handler]]
    [:all pages/index-handler]])
 
 (defrecord WebApp [server db]

@@ -1,0 +1,40 @@
+{% extends "templates/lp.html" %}
+
+{% block content %}
+
+  <section class="hero is-info is-bold">
+    {% include "templates/partials/hero_head.html" %}
+    {% include "templates/partials/hero_title.html" with title="Commands" %}
+    {% include "templates/partials/hero_footer.html" with links=links %}
+  </section>
+
+  <section class="section is-medium">
+    <div class="container">
+      <div class="heading">
+        <h1 class="title">Commands</h1>
+        <h3 class="subtitle">List of subcommands that `/veye` supports</h3>
+      </div>
+
+      <div class="container">
+        <table class="table is-striped">
+          <thead>
+            <tr>
+              <th>Command</th>
+              <th>Desription</th>
+              <th>Examples</th>
+            </tr>
+          </thead>
+          {% for k,v in commands %}
+            <tr>
+              <td> {{ k|name }} </td>
+              <td> {{ v.text|safe }} </td>
+              <td> {{ v.examples|join:"<br />"|safe }} </td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+{% endblock %}
