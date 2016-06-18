@@ -6,7 +6,9 @@
             [clojure.string :as string]
             [veyeslack.api :as api]
             [veyeslack.commands.packages :as packages-cmd]
-            [veyeslack.formatters.packages :as packages-fmt]))
+            [veyeslack.formatters.packages :as packages-fmt]
+            [veyeslack.commands.projects :as projects-cmd]
+            [veyeslack.formatters.projects :as projects-fmt]))
 
 (def not-authorized-response
   {:response_type "ephemeral"
@@ -57,48 +59,12 @@
 (defmethod cmd-dispatcher :list [cmd-dt]
   (if-let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))]
     (let [[_ org-name team-name _] (split-args (:text str))
-          response-p (md/deferred)
-          outdated-ratio (fn [proj]
-                            (let [[total outdated] ((juxt :dep_number :out_number) proj)]
-                              (if (and (number? total) (pos? total))
-                                (/ outdated (float total))
-                                0)))
-          to-attachment (fn [proj]
-                          {:title (:name proj)
-                           :title_link (to-veye-url "user/projects" (:id proj))
-                           :text (str "project id: " (:id proj))
-                           :color (cond
-                                    (= 0 (:out_number proj)) "good"
-                                    (< 0 (outdated-ratio proj) 0.25) "warning"
-                                    :else "danger")
-                           :fields [{:title "Dependencies"
-                                     :value (:dep_number proj)
-                                     :short true}
-                                    {:title "Outdated"
-                                     :value (:out_number proj)
-                                     :short true}
-                                    {:title "Licenses Red"
-                                     :value (:licenses_red proj)
-                                     :short true}
-                                    {:title "Project type"
-                                     :value (:project_type proj)
-                                     :short true}]})
-          to-response (fn [dt]
-                        {:text (str "VersionEye projects "
-                                     (cond
-                                       (and org-name team-name) (str "for team " team-name)
-                                       (and org-name (nil? team-name)) (str "for organization " org-name)
-                                       :else " you have access to"))
-                         :attachments (doall
-                                        (map #(to-attachment %) dt))})
-          api-error-response {:text "Failed to make API request"
-                              :color "danger"}]
-     (md/on-realized
-       (md/future (api/project-list api-key {:org org-name :team team-name}))
-       (fn [res] (md/success! response-p (-> res :body to-response)))
-       (fn [res] (md/success! response-p api-error-response)))
-      response-p)
-    ;;when user had no api-key attached
+          qparams {:org org-name :team team-name}]
+      (projects-cmd/list-n api-key
+                           qparams               
+                           #(projects-fmt/->list-success % qparams)
+                           #(projects-fmt/->list-error % qparams)))
+    ;;when user had no api-key
     not-authorized-response))
 
 (defn to-project-details
