@@ -10,11 +10,12 @@
                  [org.postgresql/postgresql "9.4.1208"]
                  [org.clojure/java.jdbc "0.6.1"]
                  [selmer "1.0.4"]
+                 [prismatic/schema "1.0.5"]
                  ;; Infrastructure
                  [org.slf4j/slf4j-simple "1.7.21" :scope "provided"]
                  [com.stuartsierra/component "0.3.1"]
-                 [prismatic/schema "1.0.5"]
-                 [environ "1.0.3"]]
+                 [environ "1.0.3"]
+                 [circleci/rollcage "0.2.2"]]
 
   :main veyeslack.main
   :repl-options {:init-ns user

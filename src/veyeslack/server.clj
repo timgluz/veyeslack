@@ -1,24 +1,30 @@
 (ns veyeslack.server
   (:require [catacumba.core :as ct]
             [catacumba.handlers.parse :as parse]
+            [catacumba.handlers.misc :refer [log]]
             [com.stuartsierra.component :as component]
             [catacumba.components :refer [catacumba-server assoc-routes! extra-data]]
             [clojure.string :as string]
             [schema.core :as s]
             [environ.core :refer [env]]
+            [circleci.rollcage.core :as rollcage]
             [veyeslack.db :as db]
             [veyeslack.handlers.commands :as commands]
             [veyeslack.handlers.help :as help]
             [veyeslack.handlers.oauth :as oauth]
-            [veyeslack.handlers.pages :as pages]))
+            [veyeslack.handlers.pages :as pages]
+            [veyeslack.handlers.utils :refer [json-response default-error-handler
+                                              command-error-handler]]))
 
 (defn make-app-routes
   [app-system]
   [[:assets "static" {:dir "resources/static"}]
+   [:error default-error-handler]
    [:any (extra-data {:app app-system})]
    [:prefix "commands"
+      [:error command-error-handler]
       [:any (parse/body-params)]
-      [:post commands/handler]]
+      [:post commands/handler json-response]]
    [:prefix "oauth"
       [:any (parse/body-params)]
       [:get "request" oauth/request-handler]
@@ -50,17 +56,23 @@
   [configs]
   (->
     (component/system-map
+      :rollbar (rollcage/client
+                 (:rollbar-token configs)
+                 {:environment (get-in configs [:server :enviroment] "dev")})
       :catacumba (catacumba-server (:server configs))
       :postgres (db/create (:db configs))
       :app (->WebApp nil nil))
     (component/system-using
       {:app {:server :catacumba
-             :db :postgres}})))
+             :db :postgres
+             :yeller :rollbar}})))
 
 (defn get-system-configs
   "collects system configs into unified hash-map"
   []
-  {:server {:port (Long. (or (env :app-port) 3030))
+  {:rollbar-token (env :rollbar-token)
+   :server {:enviroment (env :app-env)
+            :port (Long. (or (env :app-port) 3030))
             :debug (= "dev" (env :app-env))
             :basedir (or (env :app-basedir) ".")}
    :db {:host (env :db-host)

@@ -1,7 +1,5 @@
 (ns veyeslack.handlers.commands
-  (:require [catacumba
-              [http :as http]
-              [serializers :as sz]]
+  (:require [catacumba.core :as ct]
             [manifold.deferred :as md]
             [clojure.string :as string]
             [veyeslack.api :as api]
@@ -92,14 +90,13 @@
   [context]
   (if-let [cmd-dt (:data context)]
     (let [res (cmd-dispatcher cmd-dt)]
-      (http/ok
-        (sz/encode (if (md/deferrable? res)
-                     @(md/timeout! res 2500 timed-out-response)
-                     res)
-                   :json)
-        {:content-type "application/json"}))
+      (ct/delegate
+        {:status 200
+         :body (if (md/deferrable? res)
+                @(md/timeout! res 2500 timed-out-response)
+                res)}))
     ;;when we didnt get any useful data from user
-    (http/bad-request
-      (sz/encode {:reason "not valid command"} :json)
-      {:content-type "application/json"})))
+    (ct/delegate
+      {:status 400
+       :body {:reason "misformatted Slack command data"}})))
 
