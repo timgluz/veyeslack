@@ -30,10 +30,10 @@
                     :context {:request req-dt
                               :response auth-rsp}})
           save-res))
-        ;if failed to exchange secrets
-        (println {:reason "Failed to changes secrets with Slack API"
-                  :context {:request req-dt
-                            :response auth-rsp}}))))
+      ;if failed to exchange secrets
+      (println {:reason "Failed to changes secrets with Slack API"
+                :context {:request req-dt
+                          :response auth-rsp}}))))
 
 (defn request-handler
   [context]

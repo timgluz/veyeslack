@@ -1,4 +1,4 @@
-(defproject veyeslack "0.2.0"
+(defproject veyeslack "0.2.1-snapshot"
   :description "Slack integration for VersionEye"
   :url "https://www.github.com/timgluz/veyeslack"
   :license {:name "Eclipse Public License"
@@ -10,7 +10,7 @@
                  [org.postgresql/postgresql "9.4.1208"]
                  [org.clojure/java.jdbc "0.6.1"]
                  [selmer "1.0.4"]
-                 [prismatic/schema "1.0.5"]
+                 [prismatic/schema "1.1.2"]
                  ;; Infrastructure
                  [org.slf4j/slf4j-simple "1.7.21" :scope "provided"]
                  [com.stuartsierra/component "0.3.1"]

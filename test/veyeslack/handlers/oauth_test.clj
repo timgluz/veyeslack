@@ -38,18 +38,13 @@
 
 (deftest oauth-error-messages
   (testing "oauth returns 503, when it fails to swap code"
-    (with-fake-routes
-      {slack-oauth-url (fn [req]
-                         {:status 503
-                          :headers {"Content-Type"  "application/json"}
-                          :body (json/generate-string slack-invalid-code-error)})}
-      
-      (with-server {:handler oauth/request-handler}
+    (with-server {:handler oauth/request-handler}
         (let [res (http-client/get
                     (str base-url)
-                    {:as :json :throw-exceptions? false})]
+                    {:throw-exceptions? false
+                     :follow-redirects false})]
           (is (false? (nil? res)) "API response cant be nil")
-          (is (= 301 (:status res)))))))
+          (is (= 301 (:status res))))))
   
   (testing "oauth returns 503, when it fails to swap code"
     (with-global-fake-routes
@@ -61,9 +56,9 @@
       (with-component-server {:system (server/start!)}
         (let [res (http-client/get
                       (str base-url "/oauth/request")
-                      {:as :json
-                       :query-params {:code "abc-123"}
-                       :throw-exceptions? false})]
+                      {:query-params {:code "abc-123"}
+                       :throw-exceptions? false
+                       :follow-redirects false})]
           (is (false? (nil? res)) "API response cant be nil")
           (is (= 301 (:status res))))))))
 
@@ -78,9 +73,9 @@
       (with-component-server {:system (server/start!)}
         (let [res (http-client/get
                     (str base-url "/oauth/request")
-                    {:as :json
-                     :query-params {:code "abc-123"}
-                     :throw-exceptions? false})]
+                    {:query-params {:code "abc-123"}
+                     :throw-exceptions? false
+                     :follow-redirects false})]
           (is (false? (nil? res)) "API response cant be nil")
           (is (= 301 (:status res)))
           (let [team-tkn (tkn-mdl/get-one-by-team-id

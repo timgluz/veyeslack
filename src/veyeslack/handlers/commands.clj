@@ -8,7 +8,8 @@
             [veyeslack.commands.projects :as projects-cmd]
             [veyeslack.formatters.projects :as projects-fmt]
             [veyeslack.commands.help :as help-cmd]
-            [veyeslack.formatters.help :as help-fmt]))
+            [veyeslack.formatters.help :as help-fmt]
+            [veyeslack.version]))
 
 (def not-authorized-response
   {:response_type "ephemeral"
@@ -76,6 +77,14 @@
     (if (empty? the-command)
       (help-fmt/->full-help commands)
       (help-fmt/->command-help commands the-command))))
+
+(defmethod cmd-dispatcher :info [cmd-dt]
+  {:response_type "ephemeral"
+   :text (str 
+           "VersionEye integration for Slack with publicly open source-code;\n"
+           "Current release: " (veyeslack.version/as-semver) "\n")
+   :attachments [{:text "Contact: info@veyeslack.xyz"}
+                 {:text "Source: <https://github.com/timgluz/veyeslack>"}]})
 
 ;;TODO: add did-you-mean if edit distance <= 2
 (defmethod cmd-dispatcher :default [cmd-dt]
