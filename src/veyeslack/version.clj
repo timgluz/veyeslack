@@ -4,7 +4,7 @@
   {:major 0
    :minor 2
    :patch 1
-   :snapshot? true
+   :snapshot? false
    :build nil})
 
 (defn as-semver []
