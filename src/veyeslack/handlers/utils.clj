@@ -7,9 +7,9 @@
   [context]
   (http/response
     (-> context :body (sz/encode :json))
-    (:status context)
+    (or (:status context) 200)
     (merge {:content-type "application/json"}
-           (:headers context))))
+           (get context :response-headers {}))))
 
 (defn default-error-handler
   [context]

@@ -4,7 +4,7 @@
 - hosts: app
   remote_user: root
   vars:
-    - jarname: "veyeslack-0.2.0-standalone.jar"
+    - jarname: "veyeslack-0.2.2-standalone.jar"
     - app:
         name: 'veyeslack-app' 
         folder: /var/www/veyeslack
@@ -21,6 +21,14 @@
       notify: restart app supervisor
     - name: sync static files
       synchronize: src=../resources dest={{ app.folder }}
+
+    - name: update owner of static file folder
+      file: >
+        path={{ app.folder }}/resources/static
+        owner=www-data
+        group=www-data
+        recurse=true
+        state=directory 
 
   handlers:
     - name: restart app supervisor
