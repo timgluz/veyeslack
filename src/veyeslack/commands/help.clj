@@ -3,9 +3,10 @@
 (def commands
   {:connect {:text "saves or updates your VersionEye API token"
              :examples ["/veye connect 123456789"]}
-   :search {:text "find a package with name `clojure`"
+   :search {:text "looks for a package with name `clojure`"
             :examples ["/veye search rails"]}
-   :list {:text "list your project, possible to filter by organization and team"
+   :list {:text (str "shows status of dependencies in your project" 
+                     " possible to filter by organization and team")
           :examples ["/veye list"
                      "/veye list versionEye"
                      "/veye list versionEye team1"]}

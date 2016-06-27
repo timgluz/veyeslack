@@ -41,6 +41,7 @@
 
 (defn ->list-error
   [api-res {:keys [org-name team-name]}]
+  (println "Failed to fetch project list:\n" api-res) ;TODO: replace with yeller
   {:response_type (display-type false)
    :text "Failed to make API request"
    :color "danger"})

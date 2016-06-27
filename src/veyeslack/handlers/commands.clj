@@ -9,6 +9,9 @@
             [veyeslack.formatters.projects :as projects-fmt]
             [veyeslack.commands.help :as help-cmd]
             [veyeslack.formatters.help :as help-fmt]
+            [veyeslack.commands.user :as user-cmd]
+            [veyeslack.formatters.user :as user-fmt]
+            [veyeslack.models.api-key :as api-key-mdl]
             [veyeslack.version]))
 
 (def not-authorized-response
@@ -24,21 +27,29 @@
 (defn split-args [task-txt]
   (-> task-txt str (string/split #"\s+") vec))
 
-;;TODO: refactor into veyeslack.dispatchers.command
-(defmulti cmd-dispatcher (fn [cmd-dt] (-> cmd-dt :text split-args first keyword)))
+(defn get-api-key
+  [db-client {:keys [user_id team_id]}]
+  (-> db-client
+    (api-key-mdl/get-one-by-user-team-id user_id team_id)
+    :api_key))
 
-(defmethod cmd-dispatcher :connect [cmd-dt]
+;;TODO: refactor into veyeslack.dispatchers.command
+(defmulti cmd-dispatcher
+  (fn [the-service cmd-dt] (-> cmd-dt :text split-args first keyword)))
+
+(defmethod cmd-dispatcher :connect [the-service cmd-dt]
   (let [[_ the-api-key] (split-args (:text cmd-dt))]
     (if (empty? the-api-key)
       {:response_type "ephemeral"
        :text "You forgot API key"}
-      (do
-        (api/set-user-key! (:team_id cmd-dt) (:user_id cmd-dt) the-api-key)
-        {:response_type "ephemeral"
-         :text "Your API key is now memorized for 12hours."}))))
+      (user-cmd/connect (:db the-service)
+                        cmd-dt
+                        the-api-key
+                        #(user-fmt/->connect-success %)
+                        #(user-fmt/->connect-failure %)))))
 
-(defmethod cmd-dispatcher :search [cmd-dt]
-  (let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))
+(defmethod cmd-dispatcher :search [the-service cmd-dt]
+  (let [api-key (get-api-key (:db the-service) cmd-dt) 
         query-term (-> cmd-dt :text split-args rest join-tokens)]
     (packages-cmd/search api-key
                          query-term
@@ -46,8 +57,8 @@
                          #(packages-fmt/->search-success % false query-term)
                          #(packages-fmt/->search-failure % false query-term))))
 
-(defmethod cmd-dispatcher :list [cmd-dt]
-  (if-let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))]
+(defmethod cmd-dispatcher :list [the-service cmd-dt]
+  (if-let [api-key (get-api-key (:db the-service) cmd-dt)]
     (let [[_ org-name team-name _] (split-args (:text str))
           qparams {:org org-name :team team-name}]
       (projects-cmd/list-n api-key
@@ -57,8 +68,8 @@
     ;;when user had no api-key
     not-authorized-response))
 
-(defmethod cmd-dispatcher :project [cmd-dt]
-  (if-let [api-key (api/get-user-key (:team_id cmd-dt) (:user_id cmd-dt))]
+(defmethod cmd-dispatcher :project [the-service cmd-dt]
+  (if-let [api-key (get-api-key (:db the-service) cmd-dt)]
     (let [[_ project-id] (split-args (:text cmd-dt))]
       (if (empty? project-id)
         {:response_type "ephemeral"
@@ -71,14 +82,14 @@
     not-authorized-response))
 
 ;;delicate this task to help-dispatcher
-(defmethod cmd-dispatcher :help [cmd-dt]
+(defmethod cmd-dispatcher :help [_ cmd-dt]
   (let [[_ the-command] (split-args (:text cmd-dt))
         commands (help-cmd/get-details the-command)]
     (if (empty? the-command)
       (help-fmt/->full-help commands)
       (help-fmt/->command-help commands the-command))))
 
-(defmethod cmd-dispatcher :info [cmd-dt]
+(defmethod cmd-dispatcher :info [_ cmd-dt]
   {:response_type "ephemeral"
    :text (str 
            "VersionEye integration for Slack with publicly open source-code;\n"
@@ -87,7 +98,7 @@
                  {:text "Source: <https://github.com/timgluz/veyeslack>"}]})
 
 ;;TODO: add did-you-mean if edit distance <= 2
-(defmethod cmd-dispatcher :default [cmd-dt]
+(defmethod cmd-dispatcher :default [_ cmd-dt]
   {:response_type "ephemeral"
    :text (str "unsupported cmd `" (:text cmd-dt) "` - more info `/veye help`")})
 
@@ -98,7 +109,7 @@
 (defn handler
   [context]
   (if-let [cmd-dt (:data context)]
-    (let [res (cmd-dispatcher cmd-dt)]
+    (let [res (cmd-dispatcher (:app context) cmd-dt)]
       (ct/delegate
         {:status 200
          :body (if (md/deferrable? res)
