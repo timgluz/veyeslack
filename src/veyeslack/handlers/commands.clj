@@ -13,7 +13,7 @@
 
 (def not-authorized-response
   {:response_type "ephemeral"
-   :text "You havent save connect your API key yet;"
+   :text "You havent save your API key yet;"
    :attachments [{:title "Tip: use `/veye connect YOURAPIKEY`"
                   :text "This command will temporary save your VersionEye key"}]})
 

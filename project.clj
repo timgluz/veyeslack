@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [funcool/catacumba "0.17.0"]
                  [clj-http "3.1.0"]
+                 [clj-time "0.12.0"]
                  [timgluz/spyglass "1.2.0"]
                  [org.postgresql/postgresql "9.4.1208"]
                  [org.clojure/java.jdbc "0.6.1"]

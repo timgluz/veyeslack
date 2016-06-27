@@ -47,10 +47,3 @@
              :as :json
              :query-params {:api_key api-key}}))
 
-(comment
-  (require '[veyeslack.api :as api] :reload)
-  (def api-key (api/get-user-key "" ""))
-  (api/search api-key "rails" {})
-  (api/project-list api-key {})
-  )
-
