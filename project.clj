@@ -10,6 +10,7 @@
                  [timgluz/spyglass "1.2.0"]
                  [org.postgresql/postgresql "9.4.1208"]
                  [org.clojure/java.jdbc "0.6.1"]
+                 [org.immutant/scheduling "2.1.5"]
                  [selmer "1.0.4"]
                  [prismatic/schema "1.1.2"]
                  ;; Infrastructure

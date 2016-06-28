@@ -9,6 +9,7 @@
             [environ.core :refer [env]]
             [circleci.rollcage.core :as rollcage]
             [veyeslack.db :as db]
+            [veyeslack.scheduler :as scheduler]
             [veyeslack.handlers.commands :as commands]
             [veyeslack.handlers.help :as help]
             [veyeslack.handlers.oauth :as oauth]
@@ -61,7 +62,10 @@
                  {:environment (get-in configs [:server :enviroment] "dev")})
       :catacumba (catacumba-server (:server configs))
       :postgres (db/create (:db configs))
+      :scheduler (scheduler/create nil)
       :app (->WebApp nil nil))
+    (component/system-using
+      {:scheduler {:db :postgres}})
     (component/system-using
       {:app {:server :catacumba
              :db :postgres

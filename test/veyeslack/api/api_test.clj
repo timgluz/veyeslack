@@ -69,14 +69,14 @@
                                            :headers {"Content-Type" "application/json"}
                                            :body "Kaputt"})}
       (is (thrown? Exception (api/project-list the-token {})))))
-  
+
   (testing "returns list of projects with default settings"
     (with-global-fake-routes
       {#"https://www.versioneye.com/.*" (fn [res]
                                           {:status 200
                                            :headers {"Content-Type" "application/json"}
                                            :body (json/generate-string [project-dt])})}
-      (let [res (api/project-list the-token {})] 
+      (let [res (api/project-list the-token {})]
         (is (= 200 (:status res)))
         (is (= "bugtraqer" (-> res :body first :name)))
         (is (= "Lein" (-> res :body first :project_type)))
@@ -90,7 +90,7 @@
                                            :headers {"Content-Type" "application/json"}
                                            :body "[]"})}
       (is (thrown? Exception (api/project-details the-token (get project-dt "id"))))))
-  
+
   (testing "returns project details with default params"
     (with-global-fake-routes
       {#"https://www.versioneye.com/.*" (fn [res]
