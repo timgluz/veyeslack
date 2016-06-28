@@ -4,19 +4,6 @@
 
 (def api-url "https://www.versioneye.com/api")
 
-(defn get-user-key
-  [team-id user-id]
-  (let [chc (spyglass/bin-connection "localhost:11211")]
-    (spyglass/get chc (str "api-key-" team-id "-" user-id))))
-
-(defn set-user-key!
-  [team-id user-id api-key]
-  (let [chc (spyglass/bin-connection "localhost:11211")]
-    (spyglass/set chc
-                  (str "api-key-" team-id "-" user-id)
-                  (* 60 60 12) ;12hours in seconds
-                  api-key)))
-
 (defn to-api-uri
   [& path-items]
   (apply str (cons api-url path-items)))
@@ -30,6 +17,8 @@
                             :n n
                             :page page}}))
 
+
+;;-- project releated endpoints
 (defn project-list
   [api-key {:keys [org team]}]
   (let [qparams {:api_key api-key}]
@@ -47,3 +36,10 @@
              :as :json
              :query-params {:api_key api-key}}))
 
+;;user related endpoints
+(defn user-notifications
+  [api-key]
+  (http/get (to-api-uri "/v2/notifications")
+            {:accept :json
+             :as :json
+             :query-params {:api_key api-key}}))

@@ -102,3 +102,40 @@
         (is (= "bugtraqer" (-> res :body :name)))
         (is (= "Lein" (-> res :body :project_type)))
         (is (= 9 (-> res :body :dep_number)))))))
+
+(def notification-dt
+  {:user {:fullname "Nipi Tri"
+          :username "nipitri"}
+   :unread 2850
+   :notifications [{:created_at "2016-06-28T01:23:12.334Z"
+                    :version "2.41.0"
+                    :sent_email true
+                    :read false
+                    :product {:name "boto"
+                              :language "python"
+                              :prod_key "boto"
+                              :version "2.41.0"
+                              :prod_type "PIP"}}]})
+
+(deftest user-notifications-test
+  (testing "raises exception when request failed as wrong api-key was used"
+    (with-global-fake-routes
+      {#"https://www.versioneye.com/.*" (fn [res]
+                                     {:status 401
+                                      :headers {"Content-Type" "application/json"}
+                                      :body "[]"})}
+      (is (thrown? Exception (api/user-notifications the-token)))))
+
+  (testing "returns user notifications"
+    (with-global-fake-routes
+      {#".*"
+        (fn [res]
+          {:status 200
+           :headers {"Content-Type" "application/json"}
+           :body (json/generate-string notification-dt)})}
+      (let [res (api/user-notifications the-token)]
+        (is (= 200 (:status res)))
+        (is (= (:unread notification-dt) (-> res :body :unread)))
+        (is (= (-> notification-dt :notifications first :version)
+               (-> res :body :notifications first :version)))))))
+
