@@ -14,7 +14,9 @@
              :examples ["/veye project 52126476632bac1ae3007c88"]}
    :help {:text "shows short list of commands or detailed help for the command"
           :examples ["/veye help"
-                     "/veye help connect"]}})
+                     "/veye help connect"]}
+   :info {:text "displays VeyeSlack version and contact information"
+          :examples ["/veye info"]}})
 
 (defn get-details
   [the-command]
