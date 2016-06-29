@@ -1,5 +1,5 @@
 (ns veyeslack.formatters.user
-  (:require [veyeslack.formatters.helpers :refer [display-type]]))
+  (:require [veyeslack.formatters.helpers :refer [display-type to-safe-key to-veye-url]]))
 
 (defn ->connect-success
   [api-key-dt]
@@ -10,3 +10,20 @@
   [api-key-dt]
   {:response_type (display-type false)
    :text "Failed to save your API key. Contact info: /veye info"})
+
+(defn ->notification-success
+  [notif-dt]
+  (let [pkg-notifs (get-in notif-dt [:items :pkgs] [])
+        to-pkg (fn [pkg-dt]
+                 {:title (str (:name pkg-dt) " - " (:version pkg-dt))
+                  :title_link (to-veye-url (:language pkg-dt)
+                                           (to-safe-key (:prod_key pkg-dt))
+                                           (:version pkg-dt))
+                  :color "good"})]
+    (if (empty? pkg-notifs)
+      {:response_type (display-type true)
+       :text "No updates for the followed packages"}
+      ;;if user had any updates
+      {:response_type (display-type true)
+       :text "Newest versions for the followed packages"
+       :attachments (doall (map #(to-pkg %) pkg-notifs))})))

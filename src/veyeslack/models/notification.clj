@@ -2,6 +2,7 @@
   (:require [clojure.java.jdbc :as jdbc]
             [schema.core :as s]
             [clj-time.core :as dt]
+            [clj-time.format :as df]
             [clj-time.jdbc]
             [veyeslack.models.utils :refer [normalize-str pg-jsonb-extension]]))
 
@@ -28,17 +29,31 @@
          NewNotification
          with-timestamps))
 
+(defn ->safely-to-datetime
+  [date-txt]
+  (try
+    (df/parse (df/formatters :date-time) (str date-txt))
+    (catch Exception e
+      (println "Failed to parse date: " date-txt))))
+
 (defn process-api-result
   "transforms a item of VersionEye notifications to NewNotification"
   [team-id notification-dt]
-  {:team_id (normalize-str team-id)
-   :success false
-   :items {:pkgs (->> notification-dt
-                    :notifications
-                    (map #(get % :product))
-                    (remove empty?)
-                    (vec)
-                    (doall))}})
+  (letfn [(published-today? [the-notif]
+            (if-let [notif-dt (->safely-to-datetime (:created_at the-notif))]
+              (dt/within?
+                (dt/interval (dt/today-at 0 0) (dt/today-at 23 59))
+                notif-dt)
+              false))]
+    {:team_id (normalize-str team-id)
+     :success false
+     :items {:pkgs (->> notification-dt
+                      :notifications
+                      (filter published-today?) ;;ignore old notifications
+                      (map #(get % :product))
+                      (remove empty?)
+                      (vec)
+                      (doall))}}))
 
 (s/defn add!
   "saves pre-processed notification into database"

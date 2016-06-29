@@ -39,7 +39,7 @@
 ;;user related endpoints
 (defn user-notifications
   [api-key]
-  (http/get (to-api-uri "/v2/notifications")
+  (http/get (to-api-uri "/v2/me/notifications")
             {:accept :json
              :as :json
              :query-params {:api_key api-key}}))
