@@ -1,6 +1,7 @@
 (ns veyeslack.models.auth-token
   (:require [clojure.java.jdbc :as jdbc]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [veyeslack.models.utils :refer [normalize-str]]))
 
 (s/defschema NewAuthToken
   {:access_token s/Str
@@ -22,6 +23,14 @@
 (defn validate [dt the-schema]
   (s/validate the-schema dt))
 
+(defn normalize-ids
+  "make sure that FK fields are normalized"
+  [auth-dt]
+  (assoc auth-dt
+         :team_id (normalize-str (:team_id auth-dt))
+         :user_id (normalize-str (:user_id auth-dt))
+         :channel_id (normalize-str (:channel_id auth-dt))))
+
 (defn auth-response->model
   "transform Slack auth response into AuthToken "
   [auth-rsp]
@@ -34,6 +43,7 @@
         ;;flatten doc
         (merge (get auth-rsp :incoming_webhook default-hook-dt)
                (get auth-rsp :bot default-bot-dt))
+        (normalize-ids)
         ;;remove flattened keys of subdoc
         (select-keys (keys NewAuthToken))
         (validate AuthToken))))
@@ -51,7 +61,8 @@
   (first
     (jdbc/query 
       (:spec db-client)
-      ["SELECT * FROM auth_tokens WHERE team_id = ?" team-id])))
+      ["SELECT * FROM auth_tokens WHERE team_id = ?"
+       (normalize-str team-id)])))
 
 (s/defn add!
   [db-client :- s/Any
@@ -67,7 +78,9 @@
    token-dt :- AuthToken]
   (if (:spec db-client)
     (-> (:spec db-client)
-      (jdbc/update! "auth_tokens" token-dt ["id = ?" token-id])
+      (jdbc/update! "auth_tokens"
+                    (normalize-ids token-dt)
+                    ["id = ?" token-id])
       (first))
     (throw (ex-info "DBClient has no :spec field" {:data db-client}))))
 

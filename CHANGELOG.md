@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This change
 - add the `cve` command that shows vulnerbality information for a language;
 - add the `notifications` command to show todays notifications;
 - refactored `veyeslack.api` module into `veyeslack.services.versioneye`;
+- refactored `veyeslack.models.auth-token` to use normalized values for user-id,team-id, and channel-id;
 
 ## 0.3.0
 

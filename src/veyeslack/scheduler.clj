@@ -10,7 +10,7 @@
   (start [this]
     (let [the-scheduler (qs/schedule
                           #(notify-job/execute! (:db this))
-                           {:id :pulse
+                           {:id :notifications
                             :at "08:00" 
                             ;:in [1 :minutes] ;for debugging
                             :every [10 :seconds]
@@ -20,7 +20,7 @@
   
   (stop [this]
     (println "#-- stopping scheduler")
-    (qs/stop (qs/id :pulse))
+    (qs/stop (qs/id :notifications))
     (dissoc this :scheduler)))
 
 (defn create [db]
