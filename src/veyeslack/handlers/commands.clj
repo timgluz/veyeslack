@@ -79,7 +79,18 @@
     ;;when user has no active session
     not-authorized-response))
 
-;;delicate this task to help-dispatcher
+
+(defmethod cmd-dispatcher :cve [the-service cmd-dt]
+  (let [api-key (get-api-key (:db the-service) cmd-dt)
+        [_ the-lang the-page] (split-args (:text cmd-dt))
+        qparams {:lang the-lang
+                 :page (or the-page 1)}]
+    (packages-cmd/get-cves
+      api-key
+      qparams
+      #(packages-fmt/->cve-success % false qparams)
+      #(packages-fmt/->cve-failure % false qparams))))
+
 (defmethod cmd-dispatcher :help [_ cmd-dt]
   (let [[_ the-command] (split-args (:text cmd-dt))
         commands (help-cmd/get-details the-command)]

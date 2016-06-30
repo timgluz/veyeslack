@@ -2,8 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
-### Changed
-- Add a new arity to `make-widget-async` to provide a different widget shape.
+
+- add the `cve` command that shows vulnerbality information for a language
+- refactored `veyeslack.api` module into `veyeslack.services.versioneye`
 
 ## 0.3.0
 

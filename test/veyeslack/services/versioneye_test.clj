@@ -139,3 +139,33 @@
         (is (= (-> notification-dt :notifications first :version)
                (-> res :body :notifications first :version)))))))
 
+(def cve-dt
+  {:paging {:current_page 1
+            :per_page 30
+            :total_pages 1
+            :total_entries 0}
+   :results [{:language "Java"
+              :prod_key "org.jruby/jruby"
+              :name_id "2013-0269"
+              :summary "Nana"}]})
+
+(deftest security-test
+  (testing "raises exception when request failed"
+    (with-global-fake-routes
+      {#"https://www.versioneye.com/.*" (fn [res]
+                                          {:status 401
+                                           :headers {"Content-Type" "application/json"}
+                                           :body "[]"})}
+      (is (thrown? Exception (api/security the-token "java")))))
+  
+  (testing "returns security information for a language"
+    (with-global-fake-routes
+      {#"https://www.versioneye.com/.*" (fn [res]
+                                          {:status 200
+                                           :headers {"Content-Type" "application/json"}
+                                           :body (json/generate-string cve-dt)})}
+      (let [res (api/security the-token {:lang "java"})]
+        (is (= 200 (:status res)))
+        (is (= "Java" (-> res :body :results first :language)))))))
+
+

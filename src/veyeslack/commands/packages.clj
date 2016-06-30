@@ -11,3 +11,12 @@
       (fn [res] (md/success! res-p (on-error res))))
     res-p))
 
+(defn get-cves
+  [api-key qparams on-success on-error]
+  (let [res-p (md/deferred)]
+    (md/on-realized
+      (md/future (versioneye/security api-key qparams))
+      (fn [res] (md/success! res-p (on-success res)))
+      (fn [res] (md/success! res-p (on-error res))))
+    res-p))
+
