@@ -91,6 +91,15 @@
       #(packages-fmt/->cve-success % false qparams)
       #(packages-fmt/->cve-failure % false qparams))))
 
+(defmethod cmd-dispatcher :notifications [the-service cmd-dt]
+  (if-let [api-key (get-api-key (:db the-service) cmd-dt)]
+    (user-cmd/notifications
+      api-key
+      #(user-fmt/->notification-success % false)
+      #(user-fmt/->notification-failure % false))
+    ;;when user have no authorization token
+    not-authorized-response))
+
 (defmethod cmd-dispatcher :help [_ cmd-dt]
   (let [[_ the-command] (split-args (:text cmd-dt))
         commands (help-cmd/get-details the-command)]

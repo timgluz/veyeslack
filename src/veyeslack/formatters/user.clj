@@ -12,7 +12,7 @@
    :text "Failed to save your API key. Contact info: /veye info"})
 
 (defn ->notification-success
-  [notif-dt]
+  [notif-dt public?]
   (let [pkg-notifs (get-in notif-dt [:items :pkgs] [])
         to-pkg (fn [pkg-dt]
                  {:title (str (:name pkg-dt) " - " (:version pkg-dt))
@@ -21,9 +21,14 @@
                                            (:version pkg-dt))
                   :color "good"})]
     (if (empty? pkg-notifs)
-      {:response_type (display-type true)
+      {:response_type (display-type public?)
        :text "No updates for the followed packages"}
       ;;if user had any updates
-      {:response_type (display-type true)
-       :text "Newest versions for the followed packages"
+      {:response_type (display-type public?)
+       :text "VersionEye found today new releases for these followed packages:"
        :attachments (doall (map #(to-pkg %) pkg-notifs))})))
+
+(defn ->notification-failure
+  [notif-dt public?]
+  {:response_type (display-type public?)
+   :text "No notifications for today."})

@@ -3,8 +3,9 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
-- add the `cve` command that shows vulnerbality information for a language
-- refactored `veyeslack.api` module into `veyeslack.services.versioneye`
+- add the `cve` command that shows vulnerbality information for a language;
+- add the `notifications` command to show todays notifications;
+- refactored `veyeslack.api` module into `veyeslack.services.versioneye`;
 
 ## 0.3.0
 

@@ -17,6 +17,9 @@
          :examples ["/veye cve ruby"
                     "/veye cve nodejs 2"
                     "/veye cve php"]}
+   :notifications {:text "shows list of packages followed by you \n
+                         and for which VersionEye has detected new release today."
+                   :examples ["/veye notifications"]}
    :help {:text "shows short list of commands or detailed help for the command"
           :examples ["/veye help"
                      "/veye help connect"]}

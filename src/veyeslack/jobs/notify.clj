@@ -53,7 +53,7 @@
             (md/future
               (slack/deliver-hook
                 the-notif
-                (user-fmt/->notification-success the-notif)))
+                (user-fmt/->notification-success the-notif true)))
              ;;on-success mark it as delivered
              (fn [res]
                (notif-mdl/mark-sent! db-client (:id the-notif)))
