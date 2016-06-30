@@ -12,22 +12,24 @@
            (get context :response-headers {}))))
 
 (defn default-error-handler
-  [context]
+  [context error]
   (when-let [yeller (get-in context [:app :yeller])]
-    (rollcage/error yeller context))
+    (rollcage/error yeller error))
   (println "#-- Check errors:\n" context)
+  (println "#-- reason: " error)
   (http/internal-server-error
     "Bad things happened, sent notification to the team"
     {:content-type "text/html"}))
 
 (defn command-error-handler
-  [context]
+  [context error]
   (when-let [yeller (get-in context [:app :yeller])]
-    (rollcage/error yeller context))
+    (rollcage/error yeller error))
   (println "#-- Failed to execute command:\n" context)
+  (println "#-- reason: " error)
   (http/ok
     (sz/encode {:response_type "ephemeral"
                 :title "Sorry!"
-                :text "Oops, you found something our developer misses."}
+                :text "Oops, you found something our developer missed."}
                :json)
     {:content-type "application/json"}))

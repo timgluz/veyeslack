@@ -29,7 +29,7 @@
 (defn get-api-key
   [db-client {:keys [user_id team_id]}]
   (-> db-client
-    (api-key-mdl/get-one-by-user-team-id user_id team_id)
+    (api-key-mdl/get-one-by-user-or-team-id user_id team_id)
     :api_key))
 
 (defmulti cmd-dispatcher

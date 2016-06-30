@@ -42,6 +42,20 @@
        (normalize-str user-id)
        (normalize-str team-id)])))
 
+(defn get-one-by-user-or-team-id
+  "fetches user key if exists or tries to use teams key"
+  [db-client user-id team-id]
+  (first
+    (jdbc/query
+      (:spec db-client)
+      ["SELECT *, (user_id = ?) as owner
+       FROM api_keys
+       WHERE (user_id = ? OR team_id = ?)
+       ORDER BY owner DESC LIMIT 1"
+       (normalize-str user-id)
+       (normalize-str user-id)
+       (normalize-str team-id)])))
+
 (defn get-many-by-team-id
   "returns a list of api tokens saved for team"
   [db-client team-id]
