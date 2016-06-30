@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
+## 0.3.2 - 30-06-2016
+
+- fix: allow an user to re-use teams key;
+- fix: error-handlers require 2arguments;
+
 ## 0.3.1 - 30-06-2016
 
 - add the `cve` command that shows vulnerbality information for a language;
