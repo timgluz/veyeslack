@@ -1,12 +1,12 @@
 (ns veyeslack.commands.projects
   (:require [manifold.deferred :as md]
-            [veyeslack.api :as api]))
+            [veyeslack.services.versioneye :as versioneye]))
 
 (defn list-n
   [api-key params on-success on-error]
   (let [res-p (md/deferred)]
     (md/on-realized
-      (md/future (api/project-list api-key params))
+      (md/future (versioneye/project-list api-key params))
       (fn [res] (md/success! res-p (on-success res)))
       (fn [res] (md/success! res-p (on-error res))))
     res-p))
@@ -15,7 +15,7 @@
   [api-key project-id on-success on-error]
   (let [res-p (md/deferred)]
     (md/on-realized
-      (md/future (api/project-details api-key project-id))
+      (md/future (versioneye/project-details api-key project-id))
       (fn [res] (md/success! res-p (on-success res)))
       (fn [res] (md/success! res-p (on-error res))))
     res-p))

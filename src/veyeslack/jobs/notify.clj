@@ -1,7 +1,7 @@
 (ns veyeslack.jobs.notify
   (:require [manifold.deferred :as md]
             [manifold.stream :as ms]
-            [veyeslack.api :as api] ;;todo: move to veyeslack.services.versioneye
+            [veyeslack.services.versioneye :as versioneye]
             [veyeslack.services.slack :as slack]
             [veyeslack.models.notification :as notif-mdl]
             [veyeslack.models.team :as team-mdl]
@@ -25,7 +25,7 @@
     (when-not (ms/drained? team-ch)
       (let [the-team @(ms/take! team-ch)]
         @(md/on-realized
-          (md/future (api/user-notifications (:api_key the-team)))
+          (md/future (versioneye/user-notifications (:api_key the-team)))
           (fn [res]
             (->> (:body res)
               (notif-mdl/process-api-result (:team_id the-team))

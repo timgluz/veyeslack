@@ -1,5 +1,7 @@
 (ns veyeslack.models.notification-test
   (:require [clojure.test :refer :all]
+            [clj-time.core :as dt]
+            [clj-time.format :as df]
             [veyeslack.server :as server]
             [veyeslack.fixtures :as fx]
             [veyeslack.models.notification :as notif-mdl]))
@@ -11,8 +13,9 @@
 
 (use-fixtures :each (fx/make-table-truncate-fixture (:spec the-db) ["notifications"]))
 
+
 (def the-raw-notif1
-  {:created_at "2016-06-28T01:23:12.334Z"
+  {:created_at (df/unparse (df/formatters :date-time) (dt/now))
    :version "2.41.0"
    :sent_email true
    :read false
@@ -23,7 +26,7 @@
              :prod_type "PIP"}})
 
 (def the-raw-notif2
-  {:created_at "2016-06-28T01:17:22.704Z"
+  {:created_at (df/unparse (df/formatters :date-time) (dt/now))
    :version "5.6.3"
    :sent_email true
    :read false

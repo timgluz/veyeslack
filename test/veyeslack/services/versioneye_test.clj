@@ -1,10 +1,10 @@
-(ns veyeslack.api.api-test
+(ns veyeslack.services.versioneye-test
   (:require [clojure.test :refer :all]
             [clj-http.client :as http]
             [clj-http.fake :refer [with-global-fake-routes]]
             [cheshire.core :as json]
             [environ.core :refer [env]]
-            [veyeslack.api :as api]))
+            [veyeslack.services.versioneye :as api]))
 
 (def the-token "abc-123")
 

@@ -2,7 +2,6 @@
   (:require [catacumba.core :as ct]
             [manifold.deferred :as md]
             [clojure.string :as string]
-            [veyeslack.api :as api]
             [veyeslack.commands.packages :as packages-cmd]
             [veyeslack.formatters.packages :as packages-fmt]
             [veyeslack.commands.projects :as projects-cmd]
@@ -25,7 +24,7 @@
   (apply str (interpose " " tkns)))
 
 (defn split-args [task-txt]
-  (-> task-txt str (string/split #"\s+") vec))
+  (-> task-txt str (string/split #"\s+") (#(remove empty? %)) doall vec))
 
 (defn get-api-key
   [db-client {:keys [user_id team_id]}]
@@ -33,7 +32,6 @@
     (api-key-mdl/get-one-by-user-team-id user_id team_id)
     :api_key))
 
-;;TODO: refactor into veyeslack.dispatchers.command
 (defmulti cmd-dispatcher
   (fn [the-service cmd-dt] (-> cmd-dt :text split-args first keyword)))
 

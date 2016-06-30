@@ -1,4 +1,4 @@
-(ns veyeslack.api
+(ns veyeslack.services.versioneye
   (:require [clj-http.client :as http]
             [clojurewerkz.spyglass.client :as spyglass]))
 
