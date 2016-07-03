@@ -3,7 +3,7 @@
 (def version
   {:major 0
    :minor 3
-   :patch 2
+   :patch 3
    :snapshot? false
    :build nil})
 
