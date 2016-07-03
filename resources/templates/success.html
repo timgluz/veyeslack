@@ -44,38 +44,42 @@
           <h2 class="subtitle">
             A command walk-through.
           </h2>
-        </div>
+      </div>
+      
+      <div class="content">
+        <img src="/static/img/getting_started.gif" class="image" />
+      </div>
+    
+      <table class="table is-narrow">
+        <tr>
+          <td>/veye search clojure</td>
+          <td>finds software packages names as `clojure` </td>
+        </tr>
 
-        <table class="table is-narrow">
-          <tr>
-            <td>/veye search clojure</td>
-            <td>finds software packages names as `clojure` </td>
-          </tr>
+        <tr>
+          <td>/veye connect YOUR-API-KEY</td>
+          <td>
+            saves VersionEye API key, so you could access details of dependencies
+            and licenses on the VersionEye. <br />
+            You can find your API key on your VersionEye settings page;
+          </td>
+        </tr>
 
-          <tr>
-            <td>/veye connect YOUR-API-KEY</td>
-            <td>
-              saves VersionEye API key, so you could access details of dependencies
-              and licenses on the VersionEye. <br />
-              You can find your API key on your VersionEye settings page;
-            </td>
-          </tr>
+        <tr>
+          <td>/veye list</td>
+          <td> returns a list of your VersionEye projects. </td>
+        </tr>
 
-          <tr>
-            <td>/veye list</td>
-            <td> returns a list of your VersionEye projects. </td>
-          </tr>
+        <tr>
+          <td>/veye info PROJECT_UUID</td>
+          <td> returns a list of outdated dependencies in your project. </td>
+        </tr>
 
-          <tr>
-            <td>/veye info PROJECT_UUID</td>
-            <td> returns a list of outdated dependencies in your project. </td>
-          </tr>
-
-          <tr>
-            <td>/veye help</td>
-            <td> returns a list of action. </td>
-          </tr>
-        </table>
+        <tr>
+          <td>/veye help</td>
+          <td> returns a list of action. </td>
+        </tr>
+      </table>
     </div>
   </section>
 
