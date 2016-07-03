@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
+### 0.3.3 - 03-07-2016
+
+- fix: remove scheduler execution limit;
+- add interceptor to check does a command comes from authorized source;
+- add a few graphics to make landing user more easier;
+
 ## 0.3.2 - 30-06-2016
 
 - fix: allow an user to re-use teams key;
