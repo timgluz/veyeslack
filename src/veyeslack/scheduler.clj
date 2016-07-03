@@ -13,8 +13,8 @@
                            {:id :notifications
                             :at "08:00" 
                             ;:in [1 :minutes] ;for debugging
-                            :every [10 :seconds]
-                            :limit 1})]
+                            ;:limit 1
+                            :every [10 :seconds]})]
       (println "#-- starting a JobScheduler")
       (assoc this :scheduler the-scheduler)))
   
