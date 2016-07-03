@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
+### 0.3.4 - 03-07-2016
+
+- fix: scheduler kept executing notifications task after every 10s;
+
 ### 0.3.3 - 03-07-2016
 
 - fix: remove scheduler execution limit;

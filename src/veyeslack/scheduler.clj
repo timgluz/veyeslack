@@ -11,10 +11,7 @@
     (let [the-scheduler (qs/schedule
                           #(notify-job/execute! (:db this))
                            {:id :notifications
-                            :at "08:00" 
-                            ;:in [1 :minutes] ;for debugging
-                            ;:limit 1
-                            :every [10 :seconds]})]
+                            :cron "0 0 6 ? * MON-FRI"})]
       (println "#-- starting a JobScheduler")
       (assoc this :scheduler the-scheduler)))
   
