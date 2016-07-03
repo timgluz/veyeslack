@@ -14,7 +14,9 @@
             [veyeslack.handlers.help :as help]
             [veyeslack.handlers.oauth :as oauth]
             [veyeslack.handlers.pages :as pages]
-            [veyeslack.handlers.utils :refer [json-response default-error-handler
+            [veyeslack.handlers.utils :refer [json-response
+                                              check-command-origin
+                                              default-error-handler
                                               command-error-handler]]))
 
 (defn make-app-routes
@@ -25,7 +27,7 @@
    [:prefix "commands"
       [:error command-error-handler]
       [:any (parse/body-params)]
-      [:post commands/handler json-response]]
+      [:post check-command-origin commands/handler json-response]]
    [:prefix "oauth"
       [:any (parse/body-params)]
       [:get "request" oauth/request-handler]

@@ -1,6 +1,8 @@
 (ns veyeslack.handlers.utils
-  (:require [catacumba.http :as http]
+  (:require [catacumba.core :as ct]
+            [catacumba.http :as http]
             [catacumba.serializers :as sz]
+            [environ.core :refer [env]]
             [circleci.rollcage.core :as rollcage]))
 
 (defn json-response
@@ -10,6 +12,21 @@
     (or (:status context) 200)
     (merge {:content-type "application/json"}
            (get context :response-headers {}))))
+
+(defn- get-slack-token []
+  (env :slack-token))
+
+(defn check-command-origin
+  [context]
+  (if (= (get-slack-token) (get-in context [:data :token]))
+    (ct/delegate context)
+    ;short circuit with error message
+    (http/ok
+      (sz/encode {:response_type "ephemeral"
+                  :title "Unknown Origin"
+                  :text "Sorry, we were not able to validate the origin of your command."}
+                 :json)
+      {:content-type "application/json"})))
 
 (defn default-error-handler
   [context error]
